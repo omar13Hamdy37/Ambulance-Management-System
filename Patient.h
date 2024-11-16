@@ -1,0 +1,65 @@
+#pragma once
+
+enum class PatientType {
+	NP,
+	SP,
+	Ep
+
+};
+
+class Patient
+{
+private:
+	int PID; // Patient ID
+	int requestTime; // Time patient requested service
+	int pickupTime; // Time patient is picked up by car
+	int waitingTime; // Calculated from pickupTime - requestTime
+
+	int finishTime; // (might not be needed) Time when patient has reached the hospital
+    int assignmentTime; // Time a car is assigned to a patient
+
+	int HID; // ID of nearest hospital to patient
+	float hospitalDistance; // Distance between patient and nearest hospital
+
+	PatientType type; // NP or SP or EP
+
+    int severity; // -1 if not an EP
+
+public:
+    // Constructor
+	Patient(PatientType type, int rT, int PID, int HID, int HD, int severity = -1) : PID(PID), requestTime(rT), HID(HID), hospitalDistance(HD), type(type),severity(severity)
+	{
+
+    }
+    // Setters
+    void setPickupTime(int time) 
+    {
+        pickupTime = time;
+        calculateWaitingTime();
+
+    }
+    void setAssignmentTime(int time) { assignmentTime = time; }
+    void setFinishTime(int time) { finishTime = time; }
+    void setHID(int id) { HID = id; }
+    void setHospitalDistance(float distance) { hospitalDistance = distance; }
+
+    // Utility functions
+
+    void calculateWaitingTime() { waitingTime = pickupTime - requestTime; }
+
+    // Getters
+    int getPID() const { return PID; }
+    int getRequestTime() const { return requestTime; }
+    int getPickupTime() const { return pickupTime; }
+    int getWaitingTime() const { return waitingTime; }
+    int getFinishTime() const { return finishTime; }
+    int getAssignmentTime() const { return assignmentTime; }
+    int getHID() const { return HID; }
+    int getSeverity() const { return severity; }
+    float getHospitalDistance() const { return hospitalDistance; }
+    PatientType getType() const { return type; }
+
+
+
+};
+
