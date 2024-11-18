@@ -1,4 +1,3 @@
-
 /*
 This is a program that implements the queue abstract data type using a linked list.
 The queue is implemented as a chain of linked nodes that has two pointers,
@@ -27,7 +26,6 @@ Empty Case:
 						 \	/
 					---- NULL ------
 
-
 Single Node Case:
 				 frontPtr	 backPtr
 					\		/
@@ -41,15 +39,67 @@ Single Node Case:
 #ifndef LINKED_QUEUE_
 #define LINKED_QUEUE_
 
-#include "Node.h"
-#include "QueueADT.h"
+template < typename T>
+class Node
+{
+private:
+	T item; // A data item
+	Node<T>* next; // Pointer to next node
+public:
+	Node();
+	Node(const T& r_Item);
+	Node(const T& r_Item, Node<T>* nextNodePtr);
+	void setItem(const T& r_Item);
+	void setNext(Node<T>* nextNodePtr);
+	T getItem() const;
+	Node<T>* getNext() const;
+}; // end Node
 
-#include <iostream>
-using namespace std;
+template < typename T>
+Node<T>::Node()
+{
+	next = nullptr;
+}
 
+template < typename T>
+Node<T>::Node(const T& r_Item)
+{
+	item = r_Item;
+	next = nullptr;
+}
+
+template < typename T>
+Node<T>::Node(const T& r_Item, Node<T>* nextNodePtr)
+{
+	item = r_Item;
+	next = nextNodePtr;
+}
+template < typename T>
+void Node<T>::setItem(const T& r_Item)
+{
+	item = r_Item;
+}
+
+template < typename T>
+void Node<T>::setNext(Node<T>* nextNodePtr)
+{
+	next = nextNodePtr;
+}
+
+template < typename T>
+T Node<T>::getItem() const
+{
+	return item;
+}
+
+template < typename T>
+Node<T>* Node<T>::getNext() const
+{
+	return next;
+}
 
 template <typename T>
-class LinkedQueue :public QueueADT<T>
+class LinkedQueue
 {
 protected:
 
@@ -79,7 +129,6 @@ LinkedQueue<T>::LinkedQueue()
 {
 	backPtr = nullptr;
 	frontPtr = nullptr;
-
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -119,7 +168,6 @@ bool LinkedQueue<T>::enqueue(const T& newEntry)
 	return true;
 } // end enqueue
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*Function: dequeue
@@ -147,7 +195,6 @@ bool LinkedQueue<T>::dequeue(T& frntEntry)
 	delete nodeToDeletePtr;
 
 	return true;
-
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /*
@@ -165,7 +212,6 @@ bool LinkedQueue<T>::peek(T& frntEntry) const
 
 	frntEntry = frontPtr->getItem();
 	return true;
-
 }
 ///////////////////////////////////////////////////////////////////////////////////
 /*
@@ -196,7 +242,7 @@ LinkedQueue<T>::LinkedQueue(const LinkedQueue<T>& LQ)
 	Node<T>* NodePtr = LQ.frontPtr;	//start at the front node in LQ
 	while (NodePtr)
 	{
-		enqueue(NodePtr->getItem());	//get data of each node and enqueue it in this queue 
+		enqueue(NodePtr->getItem());	//get data of each node and enqueue it in this queue
 		NodePtr = NodePtr->getNext();
 	}
 }
