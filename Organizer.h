@@ -10,11 +10,12 @@
 
 struct Cancellation {
 	int PID;       // Patient ID
+	int HID; // Hospital ID where patient cancelled 
 	int cancelTime;      // Cancellation time
 
 	// Constructor
-	Cancellation(int id, int time)
-		: PID(id), cancelTime(time) {}
+	Cancellation(int id, int time, int HID)
+		: PID(id), cancelTime(time), HID(HID) {}
 };
 
 class Organizer
@@ -71,9 +72,9 @@ public:
 			TotalNumSP++;
 	}
 
-	void AddCancellation(int PID, int CancellationTime)
+	void AddCancellation(int PID, int CancellationTime, int HID)
 	{
-		Cancellation* c = new Cancellation(PID, CancellationTime);
+		Cancellation* c = new Cancellation(PID, CancellationTime, HID);
 		AllCancellations.enqueue(c);
 	}
 
