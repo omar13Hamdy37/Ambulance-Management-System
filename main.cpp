@@ -4,6 +4,7 @@ using namespace std;
 #include "Patient.h"
 #include "Car.h"
 #include "RemovablePriQueue.h"
+#include "Organizer.h"
 
 int main(void)
 {
@@ -32,4 +33,11 @@ int main(void)
 	cars.removeItem(smt, priority, 1);
 	cars.removeItem(smt, priority, 2);
 	cars.removeItem(smt, priority, 4);
+
+
+	Organizer Or;
+
+	Or.LoadFile("sample_input.txt");
+
+
 }

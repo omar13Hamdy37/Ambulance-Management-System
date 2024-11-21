@@ -27,6 +27,7 @@ private:
 
 public:
 	// Constructor
+
 	Hospital(int HID) : HID(HID)
 	{
 		NumSPRequests = 0; NumEPRequests = 0; NumNPRequests = 0;
