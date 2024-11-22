@@ -136,6 +136,7 @@ public:
 		}
 
 		file >> ReqNum;
+		TotalNumRequests = ReqNum;
 		for (int i = 0; i < ReqNum; i++)
 		{
 			file >> PT >> ReqTime >> PID >> HID >> PatientDistance;
@@ -164,7 +165,7 @@ public:
 		}
 
 		file >> CancellationReqNum;
-
+		NumCancellations = CancellationReqNum;
 		for (int i = 0; i < CancellationReqNum; i++)
 		{
 			file >> CancelTime >> PID >> HID;
@@ -182,7 +183,8 @@ public:
 	void SetNumCancellations(int n) { NumCancellations = n; }
 
 	// Getters
-
+	int GetTotalNumReq() { return TotalNumRequests; }
+	int GetTotalNumCanellation() { return NumCancellations; }
 	//Destructor
 	~Organizer()
 	{
