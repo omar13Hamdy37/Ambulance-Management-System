@@ -20,7 +20,7 @@ private:
 	// Lists
 	LinkedQueue<Patient*> SPlist;
 	RemovableQueue<Patient*> NPlist;  // NP's have the ability to cancel.
-	priQueue<Patient*> EPlist;       // Sorting emergy patients using priQueue
+	priQueue<Patient*> EPlist;       // Sorting emergency patients using priQueue
 
 	LinkedQueue<Car*> Scars;
 	LinkedQueue<Car*> Ncars;

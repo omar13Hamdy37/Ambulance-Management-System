@@ -83,6 +83,12 @@ public:
 		AllCancellations.enqueue(c);
 	}
 
+	void AddPatientFinishList(Patient* p)
+	{
+		FinishedPatients.enqueue(p);
+		NumFinishedPatients++;
+	}
+
 	// Omar: Function to create the hospitals given the num of hospials.
 	void CreateHospitals(int num)
 	{
