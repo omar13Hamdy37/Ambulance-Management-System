@@ -167,8 +167,7 @@ public:
 		{
 			file >> CancelTime >> PID >> HID;
 
-			Cancellation* C = new Cancellation(PID, CancelTime, HID);
-			AllCancellations.enqueue(C);
+			AddCancellation(PID, CancelTime, HID);
 		}
 		
 		file.close();
