@@ -18,6 +18,7 @@ int main() {
 	int timestep = 0;
 	// Program will end when all patients have been moved to the finish list
 	// Cancel requests are not handled in phase 1.2
+	srand(static_cast<unsigned>(time(0)));  // to generate a new number in each run
 	while (Org.GetTotalNumFinished() != Org.GetTotalNumReq()) {
 		timestep++;
 		// Patient to be moved from the AllPatients to its hospital
@@ -48,8 +49,7 @@ int main() {
 
 
 
-		srand(static_cast<unsigned>(time(0)));  // to generate a new number in each run
-		int random = 81;//rand() % 100; // generate a random number from 1 to 100
+		int random = rand() % 100; // generate a random number from 1 to 100
 		//cout << random << endl;
 
 
