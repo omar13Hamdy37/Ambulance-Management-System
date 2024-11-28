@@ -327,23 +327,28 @@ public:
 		//cout << "done";
 	}
 	void MoveBacktoFree() { // el function fiha 8alat
-		Car* tomove=nullptr;
+
+		Car* tomove;
 		int pri;
-		CarType type;
-		type = tomove->getType();
-		int id = tomove->getHID();
-		Hospital h(id);  //azon mehtag loop 3ala all hospitals
 		BackCars.dequeue(tomove, pri);
-		if (type == CarType::NC)
-		{
-			h.AddNCar(tomove);
-			//cout << "Moved";
-		}
-		else if (type == CarType::SC)
-		{
-			h.AddSCar(tomove);
-			//cout << "MOved";
-		}
+		BackCars.enqueue(tomove, pri);
+		//Car* tomove=nullptr;
+		//int pri;
+		//CarType type;
+		//type = tomove->getType();
+		//int id = tomove->getHID();
+		//Hospital h(id);  //azon mehtag loop 3ala all hospitals
+		//BackCars.dequeue(tomove, pri);
+		//if (type == CarType::NC)
+		//{
+		//	h.AddNCar(tomove);
+		//	//cout << "Moved";
+		//}
+		//else if (type == CarType::SC)
+		//{
+		//	h.AddSCar(tomove);
+		//	//cout << "MOved";
+		//}
 	}
 	void PrintO() {
 		UI call;
