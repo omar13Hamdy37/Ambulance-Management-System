@@ -109,7 +109,8 @@ public:
 
 	void LoadFile(string fileName)
 	{
-		int ScarSpeed, NcarSpeed, ScarNum, NcarNum, ReqNum, ReqTime,
+		float ScarSpeed, NcarSpeed;
+		int ScarNum, NcarNum, ReqNum, ReqTime,
 			PID, HID, PatientDistance, CancellationReqNum, CancelTime;
 		string PT;
 		PatientType PTenum;
@@ -157,8 +158,6 @@ public:
 		{
 			file >> PT >> ReqTime >> PID >> HID >> PatientDistance;
 
-			Patient* P;
-
 			if (PT == "NP")
 				PTenum = PatientType::NP;
 			else if (PT == "SP")
@@ -172,12 +171,10 @@ public:
 			{
 				int Severity;
 				file >> Severity;
-				P = new Patient(PTenum, ReqTime, PID, HID, PatientDistance, Severity);
+				AddPatient(PTenum, ReqTime, PID, HID, PatientDistance, Severity);
 			}
 			else
-				P = new Patient(PTenum, ReqTime, PID, HID, PatientDistance);
-
-			AllPatients.enqueue(P);
+				AddPatient(PTenum, ReqTime, PID, HID, PatientDistance);
 		}
 
 		file >> CancellationReqNum;
@@ -186,8 +183,7 @@ public:
 		{
 			file >> CancelTime >> PID >> HID;
 
-			Cancellation* C = new Cancellation(PID, CancelTime, HID);
-			AllCancellations.enqueue(C);
+			AddCancellation(PID, CancelTime, HID);
 		}
 
 		file.close();
