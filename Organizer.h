@@ -234,18 +234,20 @@ public:
 
 	bool AllocatePatient(int time,Patient*& patient)
 	{
-		AllPatients.peek(patient);
-		if (patient == nullptr)
+		// If AllPatients list is empty return false.
+		if (AllPatients.peek(patient) == false)
 		{
 			return false;
 		}
 		else
 		{
+			// If the "top" patient's requeset time is the ssame as this time step we move handle it.
 			if (patient->getRequestTime()==time)
 			{
 				AllPatients.dequeue(patient);
 				return true;
 			}
+			// Else all patient requests for this time step have been allocated
 			return false;
 		}
 	}
@@ -276,9 +278,6 @@ public:
 			for (int i = 0; i < NumHospitals; i++) {
 				Hospitals[i]->RemoveEP(RemovedPatient, severity); //hangeeb el severity ezay 
 				AddPatientFinishedList(RemovedPatient);
-				if (Hospitals[i]->RemoveEP(RemovedPatient, severity)) {
-					NumFinishedPatients++;
-				}
 				cout << "patients added to finished list" << endl; //3ayza a test
 
 			}
@@ -288,9 +287,6 @@ public:
 			for (int i = 0; i < NumHospitals; i++) {
 				Hospitals[i]->RemoveNP(RemovedPatient);
 				AddPatientFinishedList(RemovedPatient);
-				if (Hospitals[i]->RemoveNP(RemovedPatient)) {
-					NumFinishedPatients++;
-				}
 				//cout << "patients added to finished list" << endl; //3ayza a test
 
 			}
