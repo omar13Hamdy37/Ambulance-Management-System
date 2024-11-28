@@ -49,7 +49,7 @@ int main() {
 
 
 		srand(static_cast<unsigned>(time(0)));  // to generate a new number in each run
-		int random = 81;//rand() % 100; // generate a random number from 1 to 100
+		int random = rand() % 100; // generate a random number from 1 to 100
 		//cout << random << endl;
 
 
