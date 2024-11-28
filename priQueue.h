@@ -98,46 +98,27 @@ public:
 		return head == nullptr;
 	}
 
-	/*void priQueue<T>::print() const {
-		if (isEmpty()) {
-			cout << "No elements to print!" << endl;
-		}
-		else {
+	// Function that prints a priQueue of pointer
+	void printPointers()const {
+		if (isEmpty())
+			cout << "";
+		else
+		{
 			priNode<T>* current = head;
-			while (current) {
-				int priority;
-				cout << current->getItem(priority) << " (Priority: " << priority << ")" <<endl;
+
+			while (current)
+			{
+				int pri;
+				cout << *(current->getItem(pri)) << ", ";
 				current = current->getNext();
+
 			}
-		}
-	}*/
 
-
-	/*void priQueue<T>::counter() const {
-		int count = 0;
-		priNode<T>* current = head;
-		while (current) {
-			count++;
-			current = current->getNext();
 		}
-		cout << "Total elements: " << count << endl;
-	}*/
-
-	std::string print() const { // No template redeclaration needed
-		if (isEmpty()) {
-			std::cout << "No elements to print!" << std::endl;
-		}
-		else {
-			priNode<T>* current = head;
-			while (current) {
-				int priority=-1;
-				std::cout << current->getItem(priority)
-					<< " (Priority: " << priority << ")" << std::endl;
-				current = current->getNext();
-			}
-		}
-		return"";
+		cout << endl;
 	}
+
+
 
 	int counter() const { // No template redeclaration needed
 		int count = 0;

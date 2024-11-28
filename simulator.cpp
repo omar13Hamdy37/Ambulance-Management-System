@@ -79,8 +79,10 @@ int main() {
 		//	Org.MoveBacktoFree();
 		//}
 		//cout << endl << "Current timestep: " << timestep << endl;
-		//
-		//Org.PrintO();
+		
+
+		// Organizer calls the UI member functions using its own print function
+		Org.CallUI(timestep);
 	}
 
 	

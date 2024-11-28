@@ -136,20 +136,20 @@ public:
 	int getNumNPRequests() const {
 		return NumNPRequests;
 	}
-	priQueue<Patient*>& GetEPlist() {
-		return EPlist;
+	priQueue<Patient*>* GetEPlist() {
+		return &EPlist;
 	}
-	RemovableQueue<Patient*>& GetNplist() {
-		return NPlist;
+	RemovableQueue<Patient*>* GetNPlist() {
+		return &NPlist;
 	}
-	LinkedQueue<Patient*>& GetSplist() {
-		return SPlist;
+	LinkedQueue<Patient*>* GetSPlist() {
+		return &SPlist;
 	}
-	LinkedQueue<Car*>& GetSCar() {
-		return Scars;
+	LinkedQueue<Car*>* GetSCar() {
+		return &Scars;
 	}
-	LinkedQueue<Car*>& GetNCar() {
-		return Ncars;
+	LinkedQueue<Car*>* GetNCar() {
+		return &Ncars;
 	}
 	// Operator overloading
 

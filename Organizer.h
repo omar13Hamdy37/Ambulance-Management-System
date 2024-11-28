@@ -51,6 +51,7 @@ private:
 	int TotalNumEP, TotalNumSP, TotalNumNP;
 
 	int TotalNumSC, TotalNumNC;
+	int timestep;
 
 	// Phase 2 data members
 	int AvgWaitTime;
@@ -98,6 +99,8 @@ public:
 		NumFinishedPatients++;
 	}
 
+	int getTimeStep ()const { return timestep; }
+	int setTimeStep(int t) { timestep = t; }
 
 	// Omar: Function to create the hospitals given the num of hospials.
 	void CreateHospitals(int num)
@@ -146,12 +149,16 @@ public:
 			{
 				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
 				Hospitals[i]->AddSCar(C);
+				
 			}
 			for (int j = 0; j < NcarNum; j++)
 			{
 				Car* C = new Car(j + 1 + ScarNum, CarType::NC, NcarSpeed, i + 1);
 				Hospitals[i]->AddNCar(C);
 			}
+			Hospitals[i]->setTotalNumNcars(NcarNum);
+			Hospitals[i]->setTotalNumScars(ScarNum);
+			
 		}
 
 		file >> ReqNum;
@@ -348,23 +355,11 @@ public:
 		
 
 	}
-	void PrintO() {
+	void CallUI(int timestep) {
 		UI call;
+		call.PrintOutput(timestep, Hospitals, &OutCars, &BackCars, &FinishedPatients, NumFinishedPatients, NumOutCars, NumBackCars, NumHospitals);
 		
-		for (int i = 1;i < NumHospitals;i++) {
-			Hospital* h = Hospitals[i];
-			priQueue<Patient*>& ep = h->GetEPlist();
-			RemovableQueue<Patient*>& np = h->GetNplist();
-			LinkedQueue<Patient*>& sp = h->GetSplist();
-			LinkedQueue<Car*>& sc = h->GetSCar();
-			LinkedQueue<Car*>& nc = h->GetNCar();
-			RemovablePriQueue<Car*>& oc = GetOutCars();
-			priQueue<Car*>& bc = GetBackCars();
-			LinkedQueue<Patient*>& finished = GetFinished();
-			cout << "=========== HOSPITAL " << i << " data ========= " << endl;
-			call.PrintOutput(np,ep,sp,oc,bc,finished,sc,nc);
-			cout << "=========== HOSPITAL " << i << " data end ===========  " << endl;
-		}
+
 		
 	}
 
