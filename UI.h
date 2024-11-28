@@ -21,20 +21,38 @@ public:
 			Hospital* currentHospital = Hospitals[i];
 			cout << "=========== HOSPITAL #" << i + 1 << " data ========= " << endl;
 			cout << currentHospital->getNumEPRequests() << " EP requests: ";
-			currentHospital->GetEPlist()->printPointers(); cout << endl;
-
+			currentHospital->GetEPlist()->printPointers();
+		
 			cout << currentHospital->getNumSPRequests() << " SP requests: ";
-			currentHospital->GetSPlist()->printPointers(); cout << endl;
-
+			currentHospital->GetSPlist()->printPointers();
+		
 			cout << currentHospital->getNumNPRequests() << " NP requests: ";
-			currentHospital->GetNPlist()->printPointers(); cout << endl;
-
-
+			currentHospital->GetNPlist()->printPointers();
+		cout << "Free Cars: " << currentHospital->getAvailableNumScars() << " SCars, " << currentHospital->getAvailableNumNCars() << " NCars\n";
+		
+		
 			cout << "=========== HOSPITAL #" << i + 1<< " data end ===========" << endl;
-			cout << "------------------------------------------------------" << endl;
+			cout << "------------------------------------------------------"<< endl;
+			cout << totalNumOutC << "==> Out cars: ";
+			OutCars->printPointers();
+		
+			cout << totalNumBackC << "==> Back cars: ";
+			BackCars->printPointers();
+		
+			cout << "------------------------------------------------------"<< endl;
+		
+			cout << totalNumFinishedP << " finished patients: ";
+			FinishedPatients->printPointers();
+			cout << "Press any key to display next hospital."<< endl;
+		
+		
+			
 			cin.get();
-	
 		}
+
+
+
+
 
 
 

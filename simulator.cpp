@@ -16,6 +16,7 @@ int main() {
 	Org.LoadFile("sample_input.txt");
 
 	int timestep = 0;
+	srand(static_cast<unsigned>(time(0)));
 	// Program will end when all patients have been moved to the finish list
 	// Cancel requests are not handled in phase 1.2
 	while (Org.GetTotalNumFinished() != Org.GetTotalNumReq()) {
@@ -47,10 +48,18 @@ int main() {
 
 
 
+		int min = 10;
+		int max = 40;
 
-		srand(static_cast<unsigned>(time(0)));  // to generate a new number in each run
-		int random = rand() % 100; // generate a random number from 1 to 100
-		//cout << random << endl;
+		// Generate a random number in the range
+		int random = min + (std::rand() % (max - min + 1));
+
+
+		 // to generate a new number in each run
+		//int random = rand() % 100; // generate a random number from 1 to 100
+		cout << "Random: " << random << endl;
+
+
 
 
 
@@ -76,11 +85,11 @@ int main() {
 			Org.MoveOutToBack();
 		}
 		else if (random >= 91 && random < 95) {
-			Org.MoveBacktoFree();
+			Org.MoveBackToFree();
 		}
-		cout << endl << "Current timestep: " << timestep << endl;
 
-		Org.PrintO();
+
+		Org.CallUI(timestep);
 	}
 
 	

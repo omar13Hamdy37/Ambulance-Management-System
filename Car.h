@@ -7,7 +7,7 @@ enum class CarType {
 	SC, // Special Car
 	NC  // Normal CAr
 };
-//testsf
+
 enum class CarStatus {
 	Ready,
 	Assigned,
@@ -53,8 +53,8 @@ public:
 		return CarID == ID;
 	}
 
-	friend std::ostream& operator<<(std::ostream& output, const Car*& c) {
-		CarType tp = c->getType();
+	friend std::ostream& operator<<(std::ostream& output, const Car& c) {
+		CarType tp = c.getType();
 		string car = "";
 		if (tp == CarType::NC) {
 			car += "N";
@@ -63,7 +63,7 @@ public:
 		{
 			car += "S";
 		}
-		output << car << c->getCarID() << "_" << "H" << c->getHID();
+		output << car << c.getCarID() << "_" << "H" << c.getHID();
 		
 		return output;
 	}
