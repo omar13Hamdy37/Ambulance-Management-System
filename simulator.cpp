@@ -9,6 +9,9 @@ using namespace std;
 
 int main() {
 	//initializations
+	
+
+
 	// call file loading function
 
 	Organizer Org;
@@ -17,8 +20,9 @@ int main() {
 
 
 	int timestep = 0;
-
-	while (Org.GetTotalNumFinished() != (Org.GetTotalNumReq() - Org.GetTotalNumCanellation())) {
+	// Program will end when all patients have been moved to the finish list
+	// Cancel requests are not handled in phase 1.2
+	while (Org.GetTotalNumFinished() != Org.GetTotalNumReq()) {
 		timestep++;
 		Patient* CurrentPatient;
 		while (Org.AllocatePatient(timestep, CurrentPatient))
