@@ -12,8 +12,7 @@ int main(void)
 
 
 	Organizer Or;
-
 	Or.LoadFile("sample_input.txt");
-
+	cout << Or.GetTotalNumReq() << " " << Or.GetTotalNumCanellation();
 
 }
