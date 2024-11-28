@@ -48,41 +48,39 @@ int main() {
 
 
 
-		//srand(static_cast<unsigned>(time(0)));  // to generate a new number in each run
-		//int random = 15;//rand() % 100; // generate a random number from 1 to 100
-		////cout << random << endl;
-		//
-		//
-		//
-		//if (random >= 10 && random < 20) {
-		//	Org.HandleHospital(PatientType::SP);
-		//
-		//}
-		//else if (random >= 20 && random < 25) {
-		//	Org.HandleHospital(PatientType::Ep);
-		//
-		//}
-		//else if (random >= 30 && random < 40) {
-		//	Org.HandleHospital(PatientType::NP);
-		//
-		//}
-		//else if (random >= 40 && random < 45) {
-		//	Org.HandleCars(CarType::SC);
-		//}
-		//else if (random >= 70 && random < 75) {
-		//	Org.HandleCars(CarType::NC);
-		//}
-		//else if (random >= 80 && random < 90) {
-		//	Org.MoveOutToBack();
-		//}
-		//else if (random >= 91 && random < 95) {
-		//	Org.MoveBacktoFree();
-		//}
-		//cout << endl << "Current timestep: " << timestep << endl;
-		
+		srand(static_cast<unsigned>(time(0)));  // to generate a new number in each run
+		int random = rand() % 100; // generate a random number from 1 to 100
+		//cout << random << endl;
 
-		// Organizer calls the UI member functions using its own print function
-		Org.CallUI(timestep);
+
+
+		if (random >= 10 && random < 20) {
+			Org.HandleHospital(PatientType::SP);
+
+		}
+		else if (random >= 20 && random < 25) {
+			Org.HandleHospital(PatientType::Ep);
+
+		}
+		else if (random >= 30 && random < 40) {
+			Org.HandleHospital(PatientType::NP);
+
+		}
+		else if (random >= 40 && random < 45) {
+			Org.HandleCars(CarType::SC);
+		}
+		else if (random >= 70 && random < 75) {
+			Org.HandleCars(CarType::NC);
+		}
+		else if (random >= 80 && random < 90) {
+			Org.MoveOutToBack();
+		}
+		else if (random >= 91 && random < 95) {
+			Org.MoveBacktoFree();
+		}
+		cout << endl << "Current timestep: " << timestep << endl;
+
+		Org.PrintO();
 	}
 
 	

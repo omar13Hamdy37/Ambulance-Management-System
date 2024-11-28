@@ -1,6 +1,7 @@
 #pragma once
 #include "Patient.h"
 #include <iostream>
+#include<string>
 using namespace std;
 enum class CarType {
 	SC, // Special Car
@@ -53,8 +54,17 @@ public:
 	}
 
 	friend std::ostream& operator<<(std::ostream& output, const Car*& c) {
-		output << "Car ID: " << c->getCarID() << endl;
-		output << "Hospital ID: " << c->getHID() << endl;
+		CarType tp = c->getType();
+		string car = "";
+		if (tp == CarType::NC) {
+			car += "N";
+		}
+		else
+		{
+			car += "S";
+		}
+		output << car << c->getCarID() << "_" << "H" << c->getHID();
+		
 		return output;
 	}
 
