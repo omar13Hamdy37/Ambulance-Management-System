@@ -8,30 +8,28 @@
 using namespace std;
 
 int main() {
-	//initializations
+
 	
-
-
-	// call file loading function
+	// Call file loading function
 
 	Organizer Org;
 	Org.LoadFile("sample_input.txt");
-
-
 
 	int timestep = 0;
 	// Program will end when all patients have been moved to the finish list
 	// Cancel requests are not handled in phase 1.2
 	while (Org.GetTotalNumFinished() != Org.GetTotalNumReq()) {
 		timestep++;
+		// Patient to be moved from the AllPatients to its hospital
 		Patient* CurrentPatient;
+		// Loop stops when all requests at this time step have been allocated to their hospital
 		while (Org.AllocatePatient(timestep, CurrentPatient))
 		{
+			// Hospital the patient's request belongs to
 			Hospital* PatientsHospital = Org.getHospital(CurrentPatient->getHID());
 			PatientType patientType = CurrentPatient->getType();
 			if (patientType == PatientType::Ep) {
 				PatientsHospital->AddEP(CurrentPatient, CurrentPatient->getSeverity());
-
 			}
 			else if (patientType == PatientType::NP) {
 				PatientsHospital->AddNP(CurrentPatient);
@@ -40,9 +38,6 @@ int main() {
 			else if (patientType == PatientType::SP) {
 				PatientsHospital->AddSP(CurrentPatient);
 			}
-
-
-
 
 		}
 		// After loop finishes, all relevant patients have been added to their hospitals.
