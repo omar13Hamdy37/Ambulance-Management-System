@@ -48,8 +48,8 @@ int main() {
 
 
 
-		int min = 10;
-		int max = 40;
+		int min = 1;
+		int max = 100;
 
 		// Generate a random number in the range
 		int random = min + (std::rand() % (max - min + 1));
