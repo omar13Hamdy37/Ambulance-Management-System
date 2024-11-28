@@ -111,6 +111,8 @@ public:
 	bool enqueue(const T& newEntry);
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
+	std::string print() const;
+	int counter();
 	~LinkedQueue();
 
 	//copy constructor
@@ -213,6 +215,39 @@ bool LinkedQueue<T>::peek(T& frntEntry) const
 	frntEntry = frontPtr->getItem();
 	return true;
 }
+
+
+template <typename T>
+std::string LinkedQueue<T>::print()const {
+	if (isEmpty())
+		cout << "No elements to print! " << endl;
+	else
+	{
+		Node<T>* current = frontPtr;
+		
+		while (current)
+		{
+			cout << current->getItem() << endl;
+			current = current->getNext();
+			
+		}
+		
+	}
+	return"";
+}
+template <typename T>
+int LinkedQueue<T>::counter() {
+	Node<T>* current = frontPtr;
+	int count = 0;
+
+	while (current) {
+		count++;                
+		current = current->getNext();
+	}
+
+	return count;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 /*
 Function: destructor

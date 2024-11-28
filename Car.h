@@ -1,6 +1,7 @@
 #pragma once
 #include "Patient.h"
-
+#include <iostream>
+using namespace std;
 enum class CarType {
 	SC, // Special Car
 	NC  // Normal CAr
@@ -50,6 +51,13 @@ public:
 	bool operator==(int ID) const {
 		return CarID == ID;
 	}
+
+	friend std::ostream& operator<<(std::ostream& output, const Car& c) {
+		output << "Car ID: " << c.getCarID() << endl;
+		output << "Hospital ID: " << c.getHID() << endl;
+		return output;
+	}
+
 
 	// Utility functions
 

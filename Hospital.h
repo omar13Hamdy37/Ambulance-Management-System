@@ -4,6 +4,7 @@
 #include "priQueue.h"
 #include "LinkedQueue.h"
 #include "RemovableQueue.h"
+#include "RemovablePriQueue.h"
 
 class Hospital
 {
@@ -135,7 +136,21 @@ public:
 	int getNumNPRequests() const {
 		return NumNPRequests;
 	}
-
+	priQueue<Patient*>& GetEPlist() {
+		return EPlist;
+	}
+	RemovableQueue<Patient*>& GetNplist() {
+		return NPlist;
+	}
+	LinkedQueue<Patient*>& GetSplist() {
+		return SPlist;
+	}
+	LinkedQueue<Car*>& GetSCar() {
+		return Scars;
+	}
+	LinkedQueue<Car*>& GetNCar() {
+		return Ncars;
+	}
 	// Operator overloading
 
 	// overloading to allow the comparison of Hospitals with int ID. To see if the Hospital object has that ID.

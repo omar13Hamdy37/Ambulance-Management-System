@@ -40,4 +40,34 @@ public:
 
 		return false; // Item not found
 	}
-};
+	//template<typename T>
+	//void RemovablePriQueue<T>::print() {
+	//	if (isEmpty)
+	//		cout << "No elements to print! " << endl;
+	//	else
+	//	{
+	//		priNode<T>* current = head;
+	//		while (current)
+	//		{
+	//			cout << current->getItem() << endl;
+	//			current = current->getNext();
+	//		}
+	//	}
+	//}
+
+	//template<typename T>
+	//void RemovablePriQueue<T>::counter() {
+	//	priNode<T>* current = head;
+	//	int count = 1;
+	//	while (current) {
+	//		if (!current->getNext())
+	//			count = 1;
+	//		else
+	//		{
+	//			current = current->getNext();
+	//			count++;
+	//		}
+	//	}
+	//	cout << count;
+	//}
+};	//
