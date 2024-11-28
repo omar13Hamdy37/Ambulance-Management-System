@@ -232,18 +232,20 @@ public:
 
 	bool AllocatePatient(int time,Patient*& patient)
 	{
-		AllPatients.peek(patient);
-		if (patient == nullptr)
+		// If AllPatients list is empty return false.
+		if (AllPatients.peek(patient) == false)
 		{
 			return false;
 		}
 		else
 		{
+			// If the "top" patient's requeset time is the ssame as this time step we move handle it.
 			if (patient->getRequestTime()==time)
 			{
 				AllPatients.dequeue(patient);
 				return true;
 			}
+			// Else all patient requests for this time step have been allocated
 			return false;
 		}
 	}
