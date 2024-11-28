@@ -276,9 +276,6 @@ public:
 			for (int i = 0; i < NumHospitals; i++) {
 				Hospitals[i]->RemoveEP(RemovedPatient, severity); //hangeeb el severity ezay 
 				AddPatientFinishedList(RemovedPatient);
-				if (Hospitals[i]->RemoveEP(RemovedPatient, severity)) {
-					NumFinishedPatients++;
-				}
 				cout << "patients added to finished list" << endl; //3ayza a test
 
 			}
@@ -288,9 +285,6 @@ public:
 			for (int i = 0; i < NumHospitals; i++) {
 				Hospitals[i]->RemoveNP(RemovedPatient);
 				AddPatientFinishedList(RemovedPatient);
-				if (Hospitals[i]->RemoveNP(RemovedPatient)) {
-					NumFinishedPatients++;
-				}
 				//cout << "patients added to finished list" << endl; //3ayza a test
 
 			}
