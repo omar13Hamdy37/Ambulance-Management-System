@@ -7,6 +7,7 @@
 #include "Hospital.h"
 #include"RemovablePriQueue.h"
 #include <fstream>
+#include"UI.h"
 using namespace std;
 
 // Cancellation struct to store patient's id and time of cancellation
@@ -18,7 +19,8 @@ struct Cancellation {
 
 	// Constructor
 	Cancellation(int id, int time, int HID)
-		: PID(id), cancelTime(time), HID(HID) {}
+		: PID(id), cancelTime(time), HID(HID) {
+	}
 };
 
 class Organizer
@@ -76,6 +78,12 @@ public:
 		else if (type == PatientType::SP)
 			TotalNumSP++;
 	}
+	// returns hospital pointer given its ID
+	Hospital* getHospital(int HID)
+	{
+		// Hospital is stored at HID - 1
+		return Hospitals[HID - 1];
+	}
 
 	void AddCancellation(int PID, int CancellationTime, int HID)
 	{
@@ -83,10 +91,18 @@ public:
 		AllCancellations.enqueue(c);
 	}
 
+
+	void AddPatientFinishedList(Patient* p)
+	{
+		FinishedPatients.enqueue(p);
+		NumFinishedPatients++;
+	}
+
+
 	// Omar: Function to create the hospitals given the num of hospials.
 	void CreateHospitals(int num)
 	{
-		Hospitals = new Hospital*[num];
+		Hospitals = new Hospital * [num];
 		for (int i = 1; i <= num; i++)
 			Hospitals[i - 1] = new Hospital(i);  //set id to i
 	}
@@ -119,13 +135,13 @@ public:
 			for (int j = 0; j < NumHospitals; j++)
 				file >> DistanceMatrix[i][j];
 		}
-		
+
 		for (int i = 0; i < NumHospitals; i++)
 		{
 			file >> ScarNum >> NcarNum;
 			for (int j = 0; j < ScarNum; j++)
 			{
-				Car *C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
+				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
 				Hospitals[i]->AddSCar(C);
 			}
 			for (int j = 0; j < NcarNum; j++)
@@ -173,7 +189,7 @@ public:
 			Cancellation* C = new Cancellation(PID, CancelTime, HID);
 			AllCancellations.enqueue(C);
 		}
-		
+
 		file.close();
 	}
 
@@ -185,6 +201,12 @@ public:
 	// Getters
 	int GetTotalNumReq() { return TotalNumRequests; }
 	int GetTotalNumCanellation() { return NumCancellations; }
+	int GetTotalNumFinished() { return NumFinishedPatients; }
+	int GetNumHospitals() { return NumHospitals; }
+	RemovablePriQueue<Car*>& GetOutCars() { return OutCars; }
+	priQueue<Car*>& GetBackCars() { return BackCars; }
+	LinkedQueue<Patient*>& GetFinished() { return FinishedPatients; }
+
 	//Destructor
 	~Organizer()
 	{
@@ -207,4 +229,144 @@ public:
 		}
 
 	}
+
+	// Function that takes time step and checks if there is a request.
+	// If there is a request, enqueue the patient to its hospital.
+	// Returns true if the time step matches the request time
+
+	bool AllocatePatient(int time,Patient*& patient)
+	{
+		AllPatients.peek(patient);
+		if (patient == nullptr)
+		{
+			return false;
+		}
+		else
+		{
+			if (patient->getRequestTime()==time)
+			{
+				AllPatients.dequeue(patient);
+				return true;
+			}
+			return false;
+		}
+	}
+	void HandleHospital(PatientType type) {
+
+		if (type == PatientType::SP) {
+			Patient* RemovedPatient; //hal dah sah aslun wala la
+			for (int i = 0; i < NumHospitals; i++) {
+				//Patient* RemovedPatient;
+				if (Hospitals[i]->RemoveSP(RemovedPatient))
+				{
+					AddPatientFinishedList(RemovedPatient);  // Add to finished list
+					//NumFinishedPatients++;
+				}
+				cout << "patients added to finished list" << endl; //3ayza a test
+			}
+		}
+			/*Patient* p;
+			AllPatients.dequeue(p);
+			for (int i = 0;i < NumHospitals;i++) {
+				Hospitals[i]->AddSP(p);
+				AddPatientFinishedList(p);
+			}
+		}*/
+		else if (type == PatientType::Ep) {
+			Patient* RemovedPatient;
+			int severity;
+			for (int i = 0; i < NumHospitals; i++) {
+				Hospitals[i]->RemoveEP(RemovedPatient, severity); //hangeeb el severity ezay 
+				AddPatientFinishedList(RemovedPatient);
+				if (Hospitals[i]->RemoveEP(RemovedPatient, severity)) {
+					NumFinishedPatients++;
+				}
+				cout << "patients added to finished list" << endl; //3ayza a test
+
+			}
+		}
+		else if (type == PatientType::NP) {
+			Patient* RemovedPatient;
+			for (int i = 0; i < NumHospitals; i++) {
+				Hospitals[i]->RemoveNP(RemovedPatient);
+				AddPatientFinishedList(RemovedPatient);
+				if (Hospitals[i]->RemoveNP(RemovedPatient)) {
+					NumFinishedPatients++;
+				}
+				//cout << "patients added to finished list" << endl; //3ayza a test
+
+			}
+		}
+	}
+
+	void HandleCars(CarType type) {
+		if (type == CarType::SC) {
+			Car* movedcar;
+			for (int i = 0; i < NumHospitals; i++) {
+				Hospitals[i]->RemoveSCar(movedcar);
+				int pri = 1;			 //ana msh 3arfa el car betakhod eh tany
+				OutCars.enqueue(movedcar, pri); //el id hena dah uninitialized fa lazem nezabato
+				//cout << "SCars moved" << endl; //bahawel a test bas
+			}
+		}
+		else if (type == CarType::NC) {
+			Car* movedcar;
+			//ana msh 3arfa el car betakhod eh tany
+			for (int i = 0; i < NumHospitals; i++) {
+
+				Hospitals[i]->RemoveNCar(movedcar);
+				int pri = 1;
+				OutCars.enqueue(movedcar, pri);
+				//cout << "NCars moved" << endl;
+
+			}
+		}
+	}
+
+	void MoveOutToBack() {
+		Car* tomove;
+		int  pri;
+		OutCars.dequeue(tomove, pri);
+		BackCars.enqueue(tomove, pri);
+		//cout << "done";
+	}
+	void MoveBacktoFree() { // el function fiha 8alat
+		Car* tomove=nullptr;
+		int pri;
+		CarType type;
+		type = tomove->getType();
+		int id = tomove->getHID();
+		Hospital h(id);  //azon mehtag loop 3ala all hospitals
+		BackCars.dequeue(tomove, pri);
+		if (type == CarType::NC)
+		{
+			h.AddNCar(tomove);
+			//cout << "Moved";
+		}
+		else if (type == CarType::SC)
+		{
+			h.AddSCar(tomove);
+			//cout << "MOved";
+		}
+	}
+	void PrintO() {
+		UI call;
+		
+		for (int i = 1;i < NumHospitals;i++) {
+			Hospital* h = Hospitals[i];
+			priQueue<Patient*>& ep = h->GetEPlist();
+			RemovableQueue<Patient*>& np = h->GetNplist();
+			LinkedQueue<Patient*>& sp = h->GetSplist();
+			LinkedQueue<Car*>& sc = h->GetSCar();
+			LinkedQueue<Car*>& nc = h->GetNCar();
+			RemovablePriQueue<Car*>& oc = GetOutCars();
+			priQueue<Car*>& bc = GetBackCars();
+			LinkedQueue<Patient*>& finished = GetFinished();
+			cout << "=========== HOSPITAL " << i << " data ========= " << endl;
+			call.PrintOutput(np,ep,sp,oc,bc,finished,sc,nc);
+			cout << "=========== HOSPITAL " << i << " data end ===========  " << endl;
+		}
+		
+	}
+
 };

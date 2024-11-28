@@ -63,4 +63,11 @@ public:
 	bool operator==(int ID) const {
 		return PID == ID;
 	}
+	//operator overloading to cout patient ID
+	// Uncomment later
+	friend std::ostream& operator<<(std::ostream& output, const Patient& p) {
+		output << "Patient ID: " << p.getPID() <<std:: endl;
+		output << "Hospital ID: " << p.getHID() << std::endl;
+		return output;
+	}
 };
