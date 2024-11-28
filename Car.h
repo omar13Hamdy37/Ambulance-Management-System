@@ -52,9 +52,9 @@ public:
 		return CarID == ID;
 	}
 
-	friend std::ostream& operator<<(std::ostream& output, const Car& c) {
-		output << "Car ID: " << c.getCarID() << endl;
-		output << "Hospital ID: " << c.getHID() << endl;
+	friend std::ostream& operator<<(std::ostream& output, const Car*& c) {
+		output << "Car ID: " << c->getCarID() << endl;
+		output << "Hospital ID: " << c->getHID() << endl;
 		return output;
 	}
 

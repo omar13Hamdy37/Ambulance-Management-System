@@ -140,6 +140,8 @@ public:
 		for (int i = 0; i < NumHospitals; i++)
 		{
 			file >> ScarNum >> NcarNum;
+			TotalNumSC = ScarNum;
+			TotalNumNC = NcarNum;
 			for (int j = 0; j < ScarNum; j++)
 			{
 				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
@@ -331,24 +333,18 @@ public:
 		Car* tomove;
 		int pri;
 		BackCars.dequeue(tomove, pri);
-		BackCars.enqueue(tomove, pri);
-		//Car* tomove=nullptr;
-		//int pri;
-		//CarType type;
-		//type = tomove->getType();
-		//int id = tomove->getHID();
-		//Hospital h(id);  //azon mehtag loop 3ala all hospitals
-		//BackCars.dequeue(tomove, pri);
-		//if (type == CarType::NC)
-		//{
-		//	h.AddNCar(tomove);
-		//	//cout << "Moved";
-		//}
-		//else if (type == CarType::SC)
-		//{
-		//	h.AddSCar(tomove);
-		//	//cout << "MOved";
-		//}
+		CarType cartype = tomove->getType();
+		if (cartype == CarType::NC)
+		{
+			Hospitals[tomove->getHID() - 1]->AddNCar(tomove);
+
+		}
+		else
+		{
+			Hospitals[tomove->getHID() - 1]->AddSCar(tomove);
+		}
+		
+
 	}
 	void PrintO() {
 		UI call;
