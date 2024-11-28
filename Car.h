@@ -1,12 +1,13 @@
 #pragma once
 #include "Patient.h"
 #include <iostream>
+#include<string>
 using namespace std;
 enum class CarType {
 	SC, // Special Car
 	NC  // Normal CAr
 };
-//testsf
+
 enum class CarStatus {
 	Ready,
 	Assigned,
@@ -52,9 +53,18 @@ public:
 		return CarID == ID;
 	}
 
-	friend std::ostream& operator<<(std::ostream& output, const Car*& c) {
-		output << "Car ID: " << c->getCarID() << endl;
-		output << "Hospital ID: " << c->getHID() << endl;
+	friend std::ostream& operator<<(std::ostream& output, const Car& c) {
+		CarType tp = c.getType();
+		string car = "";
+		if (tp == CarType::NC) {
+			car += "N";
+		}
+		else
+		{
+			car += "S";
+		}
+		output << car << c.getCarID() << "_" << "H" << c.getHID();
+		
 		return output;
 	}
 

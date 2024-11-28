@@ -111,7 +111,7 @@ public:
 	bool enqueue(const T& newEntry);
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
-	std::string print() const;
+	void printPointers() const;
 	int counter();
 	~LinkedQueue();
 
@@ -216,24 +216,28 @@ bool LinkedQueue<T>::peek(T& frntEntry) const
 	return true;
 }
 
-
+// Function that prints a queue of pointers
 template <typename T>
-std::string LinkedQueue<T>::print()const {
+void LinkedQueue<T>::printPointers()const {
 	if (isEmpty())
-		cout << "No elements to print! " << endl;
+		cout <<"";
 	else
 	{
 		Node<T>* current = frontPtr;
 		
 		while (current)
 		{
-			cout << current->getItem() << endl;
+			if (!current->getNext()) {             //If Last item don't print ','
+				cout << *(current->getItem());
+				break;
+			}
+			cout << *(current->getItem()) << ", ";
 			current = current->getNext();
 			
 		}
 		
 	}
-	return"";
+	cout << endl;
 }
 template <typename T>
 int LinkedQueue<T>::counter() {

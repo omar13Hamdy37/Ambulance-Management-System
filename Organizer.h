@@ -51,6 +51,7 @@ private:
 	int TotalNumEP, TotalNumSP, TotalNumNP;
 
 	int TotalNumSC, TotalNumNC;
+	int timestep;
 
 	// Phase 2 data members
 	int AvgWaitTime;
@@ -98,6 +99,8 @@ public:
 		NumFinishedPatients++;
 	}
 
+	int getTimeStep ()const { return timestep; }
+	int setTimeStep(int t) { timestep = t; }
 
 	// Omar: Function to create the hospitals given the num of hospials.
 	void CreateHospitals(int num)
@@ -146,12 +149,16 @@ public:
 			{
 				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
 				Hospitals[i]->AddSCar(C);
+				
 			}
 			for (int j = 0; j < NcarNum; j++)
 			{
 				Car* C = new Car(j + 1 + ScarNum, CarType::NC, NcarSpeed, i + 1);
 				Hospitals[i]->AddNCar(C);
 			}
+			Hospitals[i]->setTotalNumNcars(NcarNum);
+			Hospitals[i]->setTotalNumScars(ScarNum);
+			
 		}
 
 		file >> ReqNum;
@@ -254,111 +261,115 @@ public:
 	void HandleHospital(PatientType type) {
 
 		if (type == PatientType::SP) {
-			Patient* RemovedPatient; //hal dah sah aslun wala la
+			Patient* RemovedPatient; 
 			for (int i = 0; i < NumHospitals; i++) {
-				//Patient* RemovedPatient;
 				if (Hospitals[i]->RemoveSP(RemovedPatient))
 				{
-					AddPatientFinishedList(RemovedPatient);  // Add to finished list
-					//NumFinishedPatients++;
+					AddPatientFinishedList(RemovedPatient); 
 				}
-				cout << "patients added to finished list" << endl; //3ayza a test
+
 			}
 		}
-			/*Patient* p;
-			AllPatients.dequeue(p);
-			for (int i = 0;i < NumHospitals;i++) {
-				Hospitals[i]->AddSP(p);
-				AddPatientFinishedList(p);
-			}
-		}*/
 		else if (type == PatientType::Ep) {
 			Patient* RemovedPatient;
 			int severity;
 			for (int i = 0; i < NumHospitals; i++) {
-				Hospitals[i]->RemoveEP(RemovedPatient, severity); //hangeeb el severity ezay 
-				AddPatientFinishedList(RemovedPatient);
-				cout << "patients added to finished list" << endl; //3ayza a test
-
+				if (Hospitals[i]->RemoveEP(RemovedPatient, severity))
+				{
+					AddPatientFinishedList(RemovedPatient);
+				}
 			}
 		}
 		else if (type == PatientType::NP) {
 			Patient* RemovedPatient;
 			for (int i = 0; i < NumHospitals; i++) {
-				Hospitals[i]->RemoveNP(RemovedPatient);
-				AddPatientFinishedList(RemovedPatient);
-				//cout << "patients added to finished list" << endl; //3ayza a test
+				if (Hospitals[i]->RemoveNP(RemovedPatient))
+				{
+					AddPatientFinishedList(RemovedPatient);
+				}
+
 
 			}
 		}
 	}
 
+	// Handles the transferring of cars from hospital to out.
 	void HandleCars(CarType type) {
+		// Checks the type of the car 
+
 		if (type == CarType::SC) {
 			Car* movedcar;
+			// For each hospital
 			for (int i = 0; i < NumHospitals; i++) {
-				Hospitals[i]->RemoveSCar(movedcar);
-				int pri = 1;			 //ana msh 3arfa el car betakhod eh tany
-				OutCars.enqueue(movedcar, pri); //el id hena dah uninitialized fa lazem nezabato
-				//cout << "SCars moved" << endl; //bahawel a test bas
+
+				// If I can remove a car i will do so and enqueue it.
+				if(Hospitals[i]->RemoveSCar(movedcar))
+				{
+					int pri = 1;
+					OutCars.enqueue(movedcar, pri);
+					NumOutCars++;
+				}
+
 			}
 		}
 		else if (type == CarType::NC) {
 			Car* movedcar;
-			//ana msh 3arfa el car betakhod eh tany
+
 			for (int i = 0; i < NumHospitals; i++) {
 
-				Hospitals[i]->RemoveNCar(movedcar);
-				int pri = 1;
-				OutCars.enqueue(movedcar, pri);
-				//cout << "NCars moved" << endl;
+				if(Hospitals[i]->RemoveNCar(movedcar))
+				{
+					int pri = 1;
+					OutCars.enqueue(movedcar, pri);
+					NumOutCars++;
+				}
+
 
 			}
 		}
 	}
 
+	// Handles moving cars from out to back
 	void MoveOutToBack() {
 		Car* tomove;
 		int  pri;
-		OutCars.dequeue(tomove, pri);
-		BackCars.enqueue(tomove, pri);
-		//cout << "done";
+
+		// Checks if outcars has a car
+		if (OutCars.dequeue(tomove, pri))
+		{
+			BackCars.enqueue(tomove, pri);
+			NumOutCars--;
+			NumBackCars++;
+		}
 	}
-	void MoveBacktoFree() { // el function fiha 8alat
+	// Moves one car from back list to its hospital
+	void MoveBackToFree() { 
 
 		Car* tomove;
 		int pri;
-		BackCars.dequeue(tomove, pri);
-		CarType cartype = tomove->getType();
-		if (cartype == CarType::NC)
+		if(BackCars.dequeue(tomove, pri))
 		{
-			Hospitals[tomove->getHID() - 1]->AddNCar(tomove);
-
-		}
-		else
-		{
-			Hospitals[tomove->getHID() - 1]->AddSCar(tomove);
+			NumBackCars--;
+			Hospital* currentH = Hospitals[tomove->getHID() - 1];
+			
+			CarType cartype = tomove->getType();
+			if (cartype == CarType::NC)
+			{
+				currentH->AddNCar(tomove);
+			}
+			else
+			{
+				currentH->AddSCar(tomove);
+			}
 		}
 		
 
 	}
-	void PrintO() {
+	void CallUI(int timestep) {
 		UI call;
+		call.PrintOutput(timestep, Hospitals, &OutCars, &BackCars, &FinishedPatients, NumFinishedPatients, NumOutCars, NumBackCars, NumHospitals);
 		
-		for (int i = 1;i < NumHospitals;i++) {
-			Hospital* h = Hospitals[i];
-			priQueue<Patient*>& ep = h->GetEPlist();
-			RemovableQueue<Patient*>& np = h->GetNplist();
-			LinkedQueue<Patient*>& sp = h->GetSplist();
-			LinkedQueue<Car*>& sc = h->GetSCar();
-			LinkedQueue<Car*>& nc = h->GetNCar();
-			RemovablePriQueue<Car*>& oc = GetOutCars();
-			priQueue<Car*>& bc = GetBackCars();
-			LinkedQueue<Patient*>& finished = GetFinished();
-			cout << "=========== HOSPITAL " << i << " data ========= " << endl;
-			call.PrintOutput(np,ep,sp,oc,bc,finished,sc,nc);
-			cout << "=========== HOSPITAL " << i << " data end ===========  " << endl;
-		}
+
 		
 	}
 

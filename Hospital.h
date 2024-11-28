@@ -48,12 +48,20 @@ public:
 	// Remove Cars
 	bool RemoveSCar(Car*& car)
 	{
+		if (Scars.isEmpty())
+		{
+			return false;
+		}
 		AvailableNumScars--;
 		return Scars.dequeue(car);
 	}
 
 	bool RemoveNCar(Car*& car)
 	{
+		if (Ncars.isEmpty())
+		{
+			return false;
+		}
 		AvailableNumNCars--;
 		return Ncars.dequeue(car);
 	}
@@ -81,18 +89,33 @@ public:
 
 	bool RemoveSP(Patient*& p)
 	{
+		if (SPlist.isEmpty())
+		{
+			p = nullptr;
+			return false;
+		}
 		NumSPRequests--;
 		return SPlist.dequeue(p);
 	}
 
 	bool RemoveNP(Patient*& p)
 	{
+		if (NPlist.isEmpty())
+		{
+			p = nullptr;
+			return false;
+		}
 		NumNPRequests--;
 		return NPlist.dequeue(p);
 	}
 
 	bool RemoveEP(Patient*& p, int& severity)
 	{
+		if (EPlist.isEmpty())
+		{
+			p = nullptr;
+			return false;
+		}
 		NumEPRequests--;
 		return EPlist.dequeue(p, severity);
 	}
@@ -106,6 +129,13 @@ public:
 	void setTotalNumNcars(int totalNcars) {
 		TotalNumNcars = totalNcars;
 		AvailableNumNCars = totalNcars;
+	}
+
+	void setAvailableNumNcars(int n) {
+		AvailableNumNCars = n;
+	}
+	void setAvailableNumScars(int n) {
+		AvailableNumScars = n;
 	}
 
 	// Getters
@@ -136,20 +166,20 @@ public:
 	int getNumNPRequests() const {
 		return NumNPRequests;
 	}
-	priQueue<Patient*>& GetEPlist() {
-		return EPlist;
+	priQueue<Patient*>* GetEPlist() {
+		return &EPlist;
 	}
-	RemovableQueue<Patient*>& GetNplist() {
-		return NPlist;
+	RemovableQueue<Patient*>* GetNPlist() {
+		return &NPlist;
 	}
-	LinkedQueue<Patient*>& GetSplist() {
-		return SPlist;
+	LinkedQueue<Patient*>* GetSPlist() {
+		return &SPlist;
 	}
-	LinkedQueue<Car*>& GetSCar() {
-		return Scars;
+	LinkedQueue<Car*>* GetSCar() {
+		return &Scars;
 	}
-	LinkedQueue<Car*>& GetNCar() {
-		return Ncars;
+	LinkedQueue<Car*>* GetNCar() {
+		return &Ncars;
 	}
 	// Operator overloading
 
