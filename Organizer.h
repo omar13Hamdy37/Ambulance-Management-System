@@ -143,8 +143,8 @@ public:
 		for (int i = 0; i < NumHospitals; i++)
 		{
 			file >> ScarNum >> NcarNum;
-			TotalNumSC = ScarNum;
-			TotalNumNC = NcarNum;
+			TotalNumSC += ScarNum;
+			TotalNumNC += NcarNum;
 			for (int j = 0; j < ScarNum; j++)
 			{
 				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
@@ -208,6 +208,7 @@ public:
 	int GetTotalNumCanellation() { return NumCancellations; }
 	int GetTotalNumFinished() { return NumFinishedPatients; }
 	int GetNumHospitals() { return NumHospitals; }
+
 	RemovablePriQueue<Car*>& GetOutCars() { return OutCars; }
 	priQueue<Car*>& GetBackCars() { return BackCars; }
 	LinkedQueue<Patient*>& GetFinished() { return FinishedPatients; }
