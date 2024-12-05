@@ -77,19 +77,19 @@ public:
 	//  patient dropped up - update finish time -- shoof change status
 	// shoof hat calc busy time ezay law had canclled
 	//
-	//int calculatePatientFinishTime()
-	//{
-	//    return assignedPatient->getPickupTime() + assignedPatient->getHospitalDistance() / speed;
-	//}
-	//
-	//int calculatePatientPickupTime()
-	//{
-	//    return assignedPatient->getAssignmentTime() + assignedPatient->getHospitalDistance() / speed;
-	//}
-	//
-	//void updateBusyTime()
-	//{
-	//
-	//    busyTime +=  - assignedPatient->getAssignmentTime();
-	//}
+	int calculatePatientFinishTime()
+	{
+	    return assignedPatient->getPickupTime() + assignedPatient->getHospitalDistance() / speed;
+	}
+	
+	int calculatePatientPickupTime()
+	{
+	    return assignedPatient->getAssignmentTime() + assignedPatient->getHospitalDistance() / speed;
+	}
+	
+	void updateBusyTime()
+	{
+	
+	    busyTime +=  - assignedPatient->getAssignmentTime();
+	}
 };

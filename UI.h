@@ -15,49 +15,59 @@ public:
 
 	void PrintOutput(int timestep, Hospital** Hospitals, RemovablePriQueue<Car*>* OutCars, priQueue<Car*>* BackCars, LinkedQueue<Patient*>* FinishedPatients, int totalNumFinishedP, int totalNumOutC, int totalNumBackC, int numHospitals)
 	{
-		cout << "Current Timestep: " << timestep << endl;
+			for (int i = 0; i < numHospitals; i++) {
+				Hospital* currentHospital = Hospitals[i];
+				cout << "=========== HOSPITAL #" << i + 1 << " data ========= " << endl;
+				cout << currentHospital->getNumEPRequests() << " EP requests: ";
+				currentHospital->GetEPlist()->printPointers();
 
-		for (int i = 0; i < numHospitals; i++) {
-			Hospital* currentHospital = Hospitals[i];
-			cout << "=========== HOSPITAL #" << i + 1 << " data ========= " << endl;
-			cout << currentHospital->getNumEPRequests() << " EP requests: ";
-			currentHospital->GetEPlist()->printPointers();
+				cout << currentHospital->getNumSPRequests() << " SP requests: ";
+				currentHospital->GetSPlist()->printPointers();
+
+				cout << currentHospital->getNumNPRequests() << " NP requests: ";
+				currentHospital->GetNPlist()->printPointers();
+				cout << "Free Cars: " << currentHospital->getAvailableNumScars() << " SCars, " << currentHospital->getAvailableNumNCars() << " NCars\n";
+
+
+				cout << "=========== HOSPITAL #" << i + 1 << " data end ===========" << endl;
+				cout << "------------------------------------------------------" << endl;
+				cout << totalNumOutC << "==> Out cars: ";
+				OutCars->printPointers();
+
+				cout << totalNumBackC << "==> Back cars: ";
+				BackCars->printPointers();
+
+				cout << "------------------------------------------------------" << endl;
+
+				cout << totalNumFinishedP << " finished patients: ";
+				FinishedPatients->printPointers();
+				cout << "Press any key to display next hospital." << endl;
+
+
+
+				cin.get();
+			}
 		
-			cout << currentHospital->getNumSPRequests() << " SP requests: ";
-			currentHospital->GetSPlist()->printPointers();
 		
-			cout << currentHospital->getNumNPRequests() << " NP requests: ";
-			currentHospital->GetNPlist()->printPointers();
-		cout << "Free Cars: " << currentHospital->getAvailableNumScars() << " SCars, " << currentHospital->getAvailableNumNCars() << " NCars\n";
-		
-		
-			cout << "=========== HOSPITAL #" << i + 1<< " data end ===========" << endl;
-			cout << "------------------------------------------------------"<< endl;
-			cout << totalNumOutC << "==> Out cars: ";
-			OutCars->printPointers();
-		
-			cout << totalNumBackC << "==> Back cars: ";
-			BackCars->printPointers();
-		
-			cout << "------------------------------------------------------"<< endl;
-		
-			cout << totalNumFinishedP << " finished patients: ";
-			FinishedPatients->printPointers();
-			cout << "Press any key to display next hospital."<< endl;
-		
-		
-			
-			cin.get();
+	}
+
+	int GetInput() {
+		int mode;
+		cout << "Select program mode" << endl;
+		cout << "1- Interactive mode " << endl;
+		cout << "2- Silent mode" << endl;
+		cin >> mode;
+
+		if (mode != 1 || mode != 2) {
+			cout << "Enter a valid value! " << endl;
+			cout << "Your input should be 1 or 2" << endl;
+			cout << "Select program mode" << endl;
+			cout << "1- Interactive mode " << endl;
+			cout << "2- Silent mode" << endl;
+			cin >> mode;
 		}
 
-
-
-
-
-
-
-
-
+		return mode;
 	}
 
 };

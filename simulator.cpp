@@ -13,7 +13,9 @@ int main() {
 	// Call file loading function
 
 	Organizer Org;
+	UI ui;
 	Org.LoadFile("sample_input.txt");
+	int mode =ui.GetInput();
 
 	int timestep = 0;
 	srand(static_cast<unsigned>(time(0)));
@@ -58,7 +60,7 @@ int main() {
 
 		 // to generate a new number in each run
 		//int random = rand() % 100; // generate a random number from 1 to 100
-		cout << "Random: " << random << endl;
+		
 
 
 
@@ -89,11 +91,15 @@ int main() {
 			Org.MoveBackToFree();
 		}
 
-
-		Org.CallUI(timestep);
+		if (mode == 1) { // if it's in interactive mode print all necessary data from the organizer class
+			cout << "Random: " << random << endl;
+			Org.InteractiveMode(timestep);
+		}
 	}
-
-	
+	if (mode == 2) { 
+		Org.SilentMode();
+	}
+	Org.OutputFile();
 
 
 }
