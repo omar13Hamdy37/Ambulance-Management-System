@@ -15,6 +15,8 @@ public:
 
 	void PrintOutput(int timestep, Hospital** Hospitals, RemovablePriQueue<Car*>* OutCars, priQueue<Car*>* BackCars, LinkedQueue<Patient*>* FinishedPatients, int totalNumFinishedP, int totalNumOutC, int totalNumBackC, int numHospitals)
 	{
+		cout << "Current Timestep: " << timestep << endl;
+
 			for (int i = 0; i < numHospitals; i++) {
 				Hospital* currentHospital = Hospitals[i];
 				cout << "=========== HOSPITAL #" << i + 1 << " data ========= " << endl;
