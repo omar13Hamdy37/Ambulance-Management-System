@@ -119,7 +119,56 @@ public:
 		NumEPRequests--;
 		return EPlist.dequeue(p, severity);
 	}
+	// functions to add a patient to the front of a queue 
+	void AddtoFrontSp(Patient* p) {
+		LinkedQueue<Patient*> temp;
+		Patient* tempP;
+		while (!SPlist.isEmpty()) {
+			SPlist.peek(tempP);
+			temp.enqueue(tempP);
+			SPlist.dequeue(tempP);
+		}
+		SPlist.enqueue(p);
+		while (!temp.isEmpty()) {
+			temp.peek(tempP);
+			SPlist.enqueue(tempP);
+			temp.dequeue(tempP);
+		}
 
+	}
+	void AddtoFrontNp(Patient* p) {
+		LinkedQueue<Patient*> temp;
+		Patient* tempP;
+		while (!NPlist.isEmpty()) {
+			NPlist.peek(tempP);
+			temp.enqueue(tempP);
+			NPlist.dequeue(tempP);
+		}
+		NPlist.enqueue(p);
+		while (!temp.isEmpty()) {
+			temp.peek(tempP);
+			NPlist.enqueue(tempP);
+			temp.dequeue(tempP);
+		}
+
+	}
+	void AddtoFrontEp(Patient* p, int severity) {
+		priQueue<Patient*> temp;
+		Patient* tempP;
+		int sev;
+		while (!EPlist.isEmpty()) {
+			EPlist.peek(tempP, sev);
+			temp.enqueue(tempP, sev);
+			EPlist.dequeue(tempP, sev);
+		}
+		EPlist.enqueue(p, severity);
+		while (!temp.isEmpty()) {
+			temp.peek(tempP, sev);
+			EPlist.enqueue(tempP, sev);
+			temp.dequeue(tempP, sev);
+		}
+
+	}
 	// Setters
 	void setTotalNumScars(int totalScars) {
 		TotalNumScars = totalScars;

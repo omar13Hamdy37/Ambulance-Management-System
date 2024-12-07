@@ -14,7 +14,7 @@ int main() {
 
 	Organizer Org;
 	UI ui;
-	Org.LoadFile("sample_input.txt");
+	Org.LoadFile("sample_input_5.txt");
 	int mode =ui.GetInput();
 
 	int timestep = 0;
@@ -90,6 +90,12 @@ int main() {
 		else if (random >= 91 && random < 95) {
 			Org.MoveBackToFree();
 		}
+		int minOUTfailprob = Org.getminOUTfailprob();
+		int maxOUTfailprob = Org.getmaxOUTfailprob();
+		if (random >= minOUTfailprob && random <= maxOUTfailprob) {
+			Org.FailAction();
+		}
+
 
 		if (mode == 1) { // if it's in interactive mode print all necessary data from the organizer class
 			cout << "Random: " << random << endl;
