@@ -11,7 +11,8 @@ enum class CarType {
 enum class CarStatus {
 	Ready,
 	Assigned,
-	Loaded
+	Loaded,
+	Checked,
 };
 
 class Car
