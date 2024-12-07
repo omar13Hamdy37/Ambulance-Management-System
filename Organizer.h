@@ -310,7 +310,7 @@ public:
 					//RemovedPatient->setWaitingTime(waitingTime);
 					//RemovedPatient->setFinishTime(finishTime);
 
-
+				
 					AddPatientFinishedList(RemovedPatient); 
 				}
 
@@ -432,7 +432,7 @@ public:
 			Output << setw(10) << "QT";
 			Output << setw(10) << "WT" << endl;
 
-			for (int i = 0; i < TotalNumRequests && !FinishedPatients.isEmpty(); i++) {
+			for (int i = 0; i < TotalNumRequests && !FinishedPatients.isEmpty(); i++) { // loop on finished patients and print the data
 				FinishedPatients.dequeue(p);
 				Output << std::setw(10) << p->getFinishTime();
 				Output << std::setw(10) << p->getPID();

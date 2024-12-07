@@ -14,7 +14,7 @@ int main() {
 
 	Organizer Org;
 	UI ui;
-	Org.LoadFile("sample_input.txt");
+	Org.LoadFile("sample_input_5.txt");
 	int mode =ui.GetInput();
 
 	int timestep = 0;

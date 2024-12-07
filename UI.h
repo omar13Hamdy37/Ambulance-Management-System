@@ -60,7 +60,7 @@ public:
 		cout << "2- Silent mode" << endl;
 		cin >> mode;
 
-		while(mode != 1 && mode != 2) {
+		while(mode != 1 && mode != 2) { // user should put 1 or 2 only
 			cout << "Enter a valid value! " << endl;
 			cout << "Your input should be 1 or 2" << endl;
 			cout << "Select program mode" << endl;
