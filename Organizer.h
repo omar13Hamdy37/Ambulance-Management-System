@@ -450,7 +450,7 @@ public:
 					currentH->AddtoFrontNp(movedpatient);
 				}
 				else if (type == PatientType::SP) {
-					currentH->AddtoFrontNp(movedpatient);
+					currentH->AddtoFrontSp(movedpatient);
 				}
 			}
 			BackCars.dequeue(tofail, pri);
