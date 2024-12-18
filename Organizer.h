@@ -116,7 +116,6 @@ public:
 	void LoadFile(string fileName)
 	{
 		float ScarSpeed, NcarSpeed;
-		int carfailprob;
 		int ScarNum, NcarNum, ReqNum, ReqTime,
 			PID, HID, PatientDistance, CancellationReqNum, CancelTime;
 		string PT;
@@ -219,7 +218,6 @@ public:
 	void SetNumCancellations(int n) { NumCancellations = n; }
 
 	// Getters
-	int getOUTfailprob() { return failprob; }
 	int GetTotalNumReq() { return TotalNumRequests; }
 	int GetTotalNumCanellation() { return NumCancellations; }
 	int GetTotalNumFinished() { return NumFinishedPatients; }

@@ -96,6 +96,7 @@ int main() {
 		}
 
 
+
 		if (mode == 1) { // if it's in interactive mode print all necessary data from the organizer class
 			cout << "Random: " << random << endl;
 			Org.InteractiveMode(timestep);

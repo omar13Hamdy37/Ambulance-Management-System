@@ -39,6 +39,9 @@ public:
 				cout << totalNumBackC << "==> Back cars: ";
 				BackCars->printPointers();
 
+				cout << NumCheckupCars << "==> Checked Cars: ";
+				Checkuplist->printPointers();
+
 				cout << "------------------------------------------------------" << endl;
 
 				cout << totalNumFinishedP << " finished patients: ";
