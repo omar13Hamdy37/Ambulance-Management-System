@@ -8,6 +8,8 @@
 #include "iostream"
 using namespace std;
 
+
+
 class UI {
 public:
 
@@ -15,46 +17,43 @@ public:
 	{
 		cout << "Current Timestep: " << timestep << endl;
 
-			for (int i = 0; i < numHospitals; i++) {
-				Hospital* currentHospital = Hospitals[i];
-				cout << "=========== HOSPITAL #" << i + 1 << " data ========= " << endl;
-				cout << currentHospital->getNumEPRequests() << " EP requests: ";
-				currentHospital->GetEPlist()->printPointers();
+		for (int i = 0; i < numHospitals; i++) {
+			Hospital* currentHospital = Hospitals[i];
+			cout << "=========== HOSPITAL #" << i + 1 << " data ========= " << endl;
+			cout << currentHospital->getNumEPRequests() << " EP requests: ";
+			currentHospital->GetEPlist()->printPointers();
 
-				cout << currentHospital->getNumSPRequests() << " SP requests: ";
-				currentHospital->GetSPlist()->printPointers();
+			cout << currentHospital->getNumSPRequests() << " SP requests: ";
+			currentHospital->GetSPlist()->printPointers();
 
-				cout << currentHospital->getNumNPRequests() << " NP requests: ";
-				currentHospital->GetNPlist()->printPointers();
-				cout << "Free Cars: " << currentHospital->getAvailableNumScars() << " SCars, " << currentHospital->getAvailableNumNCars() << " NCars\n";
+			cout << currentHospital->getNumNPRequests() << " NP requests: ";
+			currentHospital->GetNPlist()->printPointers();
+			cout << "Free Cars: " << currentHospital->getAvailableNumScars() << " SCars, " << currentHospital->getAvailableNumNCars() << " NCars\n";
 
 
-				cout << "=========== HOSPITAL #" << i + 1 << " data end ===========" << endl;
-				cout << "------------------------------------------------------" << endl;
-				cout << totalNumOutC << "==> Out cars: ";
-				OutCars->printPointers();
+			cout << "=========== HOSPITAL #" << i + 1 << " data end ===========" << endl;
+			cout << "------------------------------------------------------" << endl;
+			cout << totalNumOutC << "==> Out cars: ";
+			OutCars->printPointers();
 
-				cout << totalNumBackC << "==> Back cars: ";
-				BackCars->printPointers();
+			cout << totalNumBackC << "==> Back cars: ";
+			BackCars->printPointers();
 
-				cout << NumCheckupCars << "==> Checked Cars: ";
-				Checkuplist->printPointers();
+			cout << "------------------------------------------------------" << endl;
 
-				cout << "------------------------------------------------------" << endl;
-
-				cout << totalNumFinishedP << " finished patients: ";
-				FinishedPatients->printPointers();
-				cout << "------------------------------------------------------" << endl;
-				cout << NumCheckupCars << "==> Checked Cars:";
-				Checkuplist->printPointers();
-				cout << "Press any key to display next hospital." << endl;
+			cout << totalNumFinishedP << " finished patients: ";
+			FinishedPatients->printPointers();
+			cout << "------------------------------------------------------" << endl;
+			cout << NumCheckupCars << "==> Checked Cars:";
+			Checkuplist->printPointers();
+			cout << "Press any key to display next hospital." << endl;
 
 
 
-				cin.get();
-			}
-		
-		
+			cin.get();
+		}
+
+
 	}
 
 	int GetInput() {
@@ -64,7 +63,7 @@ public:
 		cout << "2- Silent mode" << endl;
 		cin >> mode;
 
-		while(mode != 1 && mode != 2) { // user should put 1 or 2 only
+		while (mode != 1 && mode != 2) { // user should put 1 or 2 only
 			cout << "Enter a valid value! " << endl;
 			cout << "Your input should be 1 or 2" << endl;
 			cout << "Select program mode" << endl;
@@ -75,4 +74,5 @@ public:
 
 		return mode;
 	}
+
 };
