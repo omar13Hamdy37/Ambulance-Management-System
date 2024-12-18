@@ -66,7 +66,7 @@ public:
 	}
 	//operator overloading to cout patient ID
 	friend std::ostream& operator<<(std::ostream& output, const Patient& p) {
-		output << p.getPID(); 
+		output << p.getPID();
 		return output;
 	}
 };

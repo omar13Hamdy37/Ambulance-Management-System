@@ -9,13 +9,14 @@
 #include <fstream>
 #include"UI.h"
 #include<iomanip>
+#include <random>
 using namespace std;
 
 // Cancellation struct to store patient's id and time of cancellation
 
 struct Cancellation {
 	int PID;       // Patient ID
-	int HID; // Hospital ID where patient cancelled 
+	int HID; // Hospital ID where patient cancelled
 	int cancelTime;      // Cancellation time
 
 	// Constructor
@@ -36,7 +37,6 @@ private:
 	LinkedQueue<Car*>CheckupList;
 	RemovablePriQueue<Car*> OutCars; // TODO: Should be removable priority queue
 	priQueue<Car*> BackCars;
-
 
 	int NumHospitals; //  Number of hospitals
 
@@ -95,7 +95,6 @@ public:
 		AllCancellations.enqueue(c);
 	}
 
-
 	void AddPatientFinishedList(Patient* p)
 	{
 		FinishedPatients.enqueue(p);
@@ -127,7 +126,6 @@ public:
 			cout << "Error opening file: " << fileName << endl;
 			return;
 		}
-
 
 		file >> NumHospitals >> ScarSpeed >> NcarSpeed;
 
@@ -277,7 +275,6 @@ public:
 			AllCancellations.dequeue(c);  // Remove cancellation from queue
 			delete c;  // Free memory
 		}
-
 	}
 
 	// Function that takes time step and checks if there is a request.
@@ -303,8 +300,9 @@ public:
 			return false;
 		}
 	}
-	void HandleHospital(PatientType type) {
 
+	// Given the type of patient, for all hospitals, a patient is removed from hospital list and added to patient finished list.
+	void HandleHospital(PatientType type) {
 		if (type == PatientType::SP) {
 			Patient* RemovedPatient;
 			for (int i = 0; i < NumHospitals; i++) {
@@ -327,7 +325,6 @@ public:
 
 					AddPatientFinishedList(RemovedPatient);
 				}
-
 			}
 		}
 		else if (type == PatientType::Ep) {
@@ -347,21 +344,18 @@ public:
 				{
 					AddPatientFinishedList(RemovedPatient);
 				}
-
-
 			}
 		}
 	}
 
 	// Handles the transferring of cars from hospital to out.
 	void HandleCars(CarType type) {
-		// Checks the type of the car 
+		// Checks the type of the car
 
 		if (type == CarType::SC) {
 			Car* movedcar;
 			// For each hospital
 			for (int i = 0; i < NumHospitals; i++) {
-
 				// If I can remove a car i will do so and enqueue it.
 				if (Hospitals[i]->RemoveSCar(movedcar))
 				{
@@ -369,7 +363,6 @@ public:
 					OutCars.enqueue(movedcar, pri);
 					NumOutCars++;
 				}
-
 			}
 		}
 		else if (type == CarType::NC) {
@@ -383,8 +376,6 @@ public:
 					OutCars.enqueue(movedcar, pri);
 					NumOutCars++;
 				}
-
-
 			}
 		}
 	}
@@ -479,7 +470,93 @@ public:
 				Output << std::setw(10) << "PID";
 				Output << setw(10) << "QT";
 				Output << setw(10) << "WT" << endl;
+	void CallUI(int timestep) {
+		UI call;
+		call.PrintOutput(timestep, Hospitals, &OutCars, &BackCars, &FinishedPatients, NumFinishedPatients, NumOutCars, NumBackCars, NumHospitals);
+	}
 
+	// A function that calls all hospitals to handle all requests at the current timestep
+	void HandleHospitalPatients()
+	{
+		for (int i = 0; i < NumHospitals; i++)
+		{
+			Hospitals[i]->HandlePatients();
+		}
+	}
+
+	// A function that lets each hospital reassign their unhandled EPs to another hospital (b4 bonus)
+	// It says "pick any other hospital" to reassign ep to, so only basic check is done (not reassigning to the same hospital)
+	void ReassignEPs()
+	{
+		// For each hospital
+		for (int i = 0; i < NumHospitals; i++)
+		{
+			// Check if the hospital  has unassigned EP
+			while (Hospitals[i]->getHasUnassignedEP())
+			{
+				// we get the number of the new hospital
+				int j = randomExcluding(1, NumHospitals, i);
+
+				// move the ep
+				Patient* p; int severity;
+				Hospitals[i]->RemoveEP(p, severity);
+				Hospitals[j]->AddEP(p, severity);
+
+				// Update the "has unassigned ep" bool of the hospital after moving
+				Hospitals[i]->setHasUnassignedEP(Hospitals[i]->getEPlistEmpty());
+			}
+		}
+	}
+
+	// Utility function that returns a random num. min, max, excluding.
+	int randomExcluding(int min, int max, int exclude) {
+		// the seed
+		random_device rd;
+		mt19937 gen(rd()); // Mersenne Twister random number generator
+		uniform_int_distribution<> dist(min, max);
+
+		int result;
+		do {
+			result = dist(gen);
+		} while (result == exclude); // Re-roll if the number is the excluded one
+
+		return result;
+	}
+
+	void Simulate(string sample_input)
+	{
+		LoadFile(sample_input);
+
+		int timestep = 0;
+		srand(static_cast<unsigned>(time(0)));
+		// Program will end when all patients have been moved to the finish list
+
+		// Cancel requests are not handled in phase 1.2
+
+		srand(static_cast<unsigned>(time(0)));  // to generate a new number in each run
+		while (GetTotalNumFinished() != GetTotalNumReq()) {
+			timestep++;
+			// Patient to be moved from the AllPatients to its hospital
+			Patient* CurrentPatient;
+			// Loop stops when all requests at this time step have been allocated to their hospital
+			while (AllocatePatient(timestep, CurrentPatient))
+			{
+				// Hospital the patient's request belongs to
+				Hospital* PatientsHospital = getHospital(CurrentPatient->getHID());
+				PatientType patientType = CurrentPatient->getType();
+				if (patientType == PatientType::Ep) {
+					PatientsHospital->AddEP(CurrentPatient, CurrentPatient->getSeverity());
+				}
+				else if (patientType == PatientType::NP) {
+					PatientsHospital->AddNP(CurrentPatient);
+				}
+				else if (patientType == PatientType::SP) {
+					PatientsHospital->AddSP(CurrentPatient);
+				}
+			}
+			// After loop finishes, all relevant patients have been added to their hospitals.
+			// CurrentPatient is now useless
+			CurrentPatient = NULL;
 				for (int i = 0; i < TotalNumRequests && !FinishedPatients.isEmpty(); i++) { // loop on finished patients and print the data
 					FinishedPatients.dequeue(p);
 					Output << std::setw(10) << p->getFinishTime();
@@ -502,5 +579,45 @@ public:
 			}
 		}
 
-	};
+			// All hospitals should now check their requests and handle as much as possible
+			HandleHospitalPatients();
+			// Reassign unhandled eps.
+			ReassignEPs();
 
+			// Old simulator function
+			//int min = 1;
+			//int max = 100;
+
+			//// Generate a random number in the range
+			//int random = min + (std::rand() % (max - min + 1));
+
+			// // to generate a new number in each run
+			////int random = rand() % 100; // generate a random number from 1 to 100
+			//cout << "Random: " << random << endl;
+			/*if (random >= 10 && random < 20) {
+				Org.HandleHospital(PatientType::SP);
+			}
+			else if (random >= 20 && random < 25) {
+				Org.HandleHospital(PatientType::Ep);
+			}
+			else if (random >= 30 && random < 40) {
+				Org.HandleHospital(PatientType::NP);
+			}
+			else if (random >= 40 && random < 45) {
+				Org.HandleCars(CarType::SC);
+			}
+			else if (random >= 70 && random < 75) {
+				Org.HandleCars(CarType::NC);
+			}
+			else if (random >= 80 && random < 90) {
+				Org.MoveOutToBack();
+			}
+			else if (random >= 91 && random < 95) {
+				Org.MoveBackToFree();
+			}*/
+
+			CallUI(timestep);
+			// Produce output file
+		}
+	}
+};

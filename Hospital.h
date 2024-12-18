@@ -18,6 +18,8 @@ private:
 
 	int NumSPRequests, NumNPRequests, NumEPRequests;
 
+	bool HasUnassignedEP;
+
 	// Lists
 	LinkedQueue<Patient*> SPlist;
 	RemovableQueue<Patient*> NPlist;  // NP's have the ability to cancel.
@@ -186,6 +188,10 @@ public:
 	void setAvailableNumScars(int n) {
 		AvailableNumScars = n;
 	}
+	void setHasUnassignedEP(bool b)
+	{
+		HasUnassignedEP = b;
+	}
 
 	// Getters
 	int getTotalNumScars() const {
@@ -215,6 +221,14 @@ public:
 	int getNumNPRequests() const {
 		return NumNPRequests;
 	}
+
+	bool getHasUnassignedEP() const {
+		return HasUnassignedEP;
+	}
+	bool getEPlistEmpty()const {
+		return EPlist.isEmpty();
+	}
+
 	priQueue<Patient*>* GetEPlist() {
 		return &EPlist;
 	}
@@ -236,4 +250,71 @@ public:
 	bool operator==(int ID) const {
 		return HID == ID;
 	}
+	// Check if hospital has available cars
+	bool CarAvailable()
+	{
+		return !(Ncars.isEmpty() && Scars.isEmpty());
+	}
+
+	// A function that handles all current requests for the hospital
+	void HandlePatients()
+	{
+		// The patient that will be removed from requests list
+		Patient* p;
+		int severity;
+		// The car of the patient
+		Car* c;
+
+		// Patient-Car assignment will stop, if no more requests present or no cars are available
+		while (!EPlist.isEmpty() && !(Scars.isEmpty() && Ncars.isEmpty()))
+		{
+			// We have the patient
+			RemoveEP(p, severity);
+			// We have the car. (if both empty we wouldn't enter while loop)
+			if (!Ncars.isEmpty())
+			{
+				RemoveNCar(c);
+			}
+			else
+			{
+				RemoveSCar(c);
+			}
+			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
+			c->setAssignedPatient(p);
+		}
+
+		// Here we decide if the Hospital has unassigned EP (to be reassigned later)
+
+		if (EPlist.isEmpty())
+		{
+			HasUnassignedEP = false;
+		}
+		else
+		{
+			HasUnassignedEP = true;
+		}
+
+		// Patient-Car assignment will stop, if no more requests present or no cars are available
+		while (!SPlist.isEmpty() && !Scars.isEmpty())
+		{
+			// We have the patient
+			RemoveSP(p);
+			// We have the car. (if empty we wouldn't enter while loop)
+			RemoveSCar(c);
+			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
+			c->setAssignedPatient(p);
+		}
+
+		// Patient-Car assignment will stop, if no more requests present or no cars are available
+		while (!NPlist.isEmpty() && !Ncars.isEmpty())
+		{
+			// We have the patient
+			RemoveNP(p);
+			// We have the car. (if empty we wouldn't enter while loop)
+			RemoveNCar(c);
+			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
+			c->setAssignedPatient(p);
+		}
+	}
+
 };
