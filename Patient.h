@@ -44,7 +44,6 @@ public:
 	void setHID(int id) { HID = id; }
 	void setHospitalDistance(float distance) { hospitalDistance = distance; }
 	void setCarId(int id) { Carid = id; }
-	//void setAssignedCar(Car* c) { AssignedCar = c; }
 	// Utility functions
 
 	void calculateWaitingTime() { waitingTime = pickupTime - requestTime; }
@@ -61,7 +60,6 @@ public:
 	float getHospitalDistance() const { return hospitalDistance; }
 	PatientType getType() const { return type; }
 	int getCarId() const { return Carid; }
-	//Car* getAssignedCar() const { return AssignedCar; }
 
 	// Operator overloading
 	//

@@ -350,7 +350,7 @@ public:
 			NumBackCars++;
 		}*/
 	}
-	// Moves one car from back list to its hospital
+	// loops on back cars list
 	void MoveBackToFree(int Timestep) { 
 
 		Car* tomove = nullptr;
@@ -395,6 +395,7 @@ public:
 	{
 		Patient* AssignedP = nullptr;
 		Car* AssignedC = nullptr;
+		bool Cassigned = false;
 		int pri;
 
 		if (hid < 1 || hid > NumHospitals)
@@ -402,67 +403,65 @@ public:
 
 		Hospital* H = Hospitals[hid - 1];
 
-		//First handle EP
-		//
-
-		//second handle SP
-		//
-
-		//Third handle NP
-		if (H->AssignNP(Timestep))
+		H->HandlePatients();
+		while (H->getAssignedCar(AssignedC))
 		{
-			H->RemoveNCar(AssignedC);  // if patient is assigned successfully then Ncar is assigned a patient
 			AssignedP = AssignedC->getAssignedPatient();
+			
+			if (AssignedP == nullptr)
+				continue; //just in case there was an error when assigning patients
+
+			AssignedP->setAssignmentTime(Timestep);
 			int Picktime = AssignedP->getAssignmentTime() + AssignedP->getHospitalDistance() / AssignedC->getSpeed();
-			pri = -1 * Picktime; //least pick time has higher priority
-			AssignedC->setStatus(CarStatus::Assigned);
+			pri = -1 * Picktime;  // prioritize based on pick time lower pick time = higher priority
+
+			// enqueue car to OutCars
 			OutCars.enqueue(AssignedC, pri);
 			NumOutCars++;
-			return true;
+			Cassigned = true;
 		}
+		return Cassigned;
 	}
 	bool CancelRequest(int Timestep)
 	{
 		Cancellation* CancelReq = nullptr;
-		if (!AllCancellations.dequeue(CancelReq))
-		{
-			return false;
-		}
 		Car* Car = nullptr;
 		Patient* P = nullptr;
 		int pri;
+		while (AllCancellations.dequeue(CancelReq))
+		{	
 
-		int hid = CancelReq->HID;
-		if (hid < 1 || hid > NumHospitals) { //check validity of hid
-			delete CancelReq;
-			return false;  
-		}
-		Hospital* H = Hospitals[hid - 1];
-		H->GetNPlist()->removeItem(P, CancelReq->PID);
+			int hid = CancelReq->HID;
+			if (hid < 1 || hid > NumHospitals) { //check validity of hid
+				delete CancelReq; //this request shouldn't happen
+				continue;
+			}
+			Hospital* H = Hospitals[hid - 1];
+			H->GetNPlist()->removeItem(P, CancelReq->PID);
 
-		if (!P)
-			return false;
+			if (!P)
+				continue;
 
-		if (Timestep > P->getAssignmentTime() + P->getHospitalDistance() / H->getNCarspeed())
-			return false; //patient cannot cancel a request while in a car ***waiting P only***
+			if (Timestep > P->getAssignmentTime() + P->getHospitalDistance() / H->getNCarspeed())
+				continue; //patient cannot cancel a request while in a car ***waiting P only***
 
-		int Carid = P->getCarId();
+			int Carid = P->getCarId();
 
-		if (Carid == -1) { // no car assigned
-			delete CancelReq; CancelReq = nullptr;
-			delete P; P = nullptr;
-			return true; // No car to handle
-		}
+			if (Carid == -1) { // no car assigned
+				continue; // No car to handle
+			}
 
-		//getting car that was assigned this patient
-		if (OutCars.removeItem(Car, pri, Carid))
-		{
-			Car->setAssignedPatient(nullptr);
-			Car->updateBusyTime((Timestep - P->getAssignmentTime()) * 2);
-			P->setCarId(-1); //car removed from patient
-			BackCars.enqueue(Car, pri);
-			NumOutCars--;
-			NumBackCars++;
+			//getting car that was assigned this patient
+			if (OutCars.removeItem(Car, pri, Carid))
+			{
+				Car->setAssignedPatient(nullptr);
+				Car->updateBusyTime((Timestep - P->getAssignmentTime()) * 2);
+				P->setCarId(-1); //car removed from patient
+				BackCars.enqueue(Car, pri);
+				NumOutCars--;
+				NumBackCars++;
+			}
+
 		}
 		CancelReq = nullptr;
 		P = nullptr;
