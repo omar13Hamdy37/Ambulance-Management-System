@@ -86,7 +86,7 @@ int main() {
 			Org.MoveOutToBack(1);
 		}
 		else if (random >= 91 && random < 95) {
-			Org.MoveBackToFree();
+			Org.MoveBackToFree(1);
 		}
 
 
