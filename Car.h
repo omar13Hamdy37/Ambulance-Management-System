@@ -64,10 +64,9 @@ public:
 			car += "S";
 		}
 		output << car << c.getCarID() << "_" << "H" << c.getHID();
-		
+
 		return output;
 	}
-
 
 	// Utility functions
 
