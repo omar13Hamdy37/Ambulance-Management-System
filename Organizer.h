@@ -259,6 +259,8 @@ public:
 			return false;
 		}
 	}
+
+	// Given the type of patient, for all hospitals, a patient is removed from hospital list and added to patient finished list.
 	void HandleHospital(PatientType type) {
 
 		if (type == PatientType::SP) {
@@ -374,4 +376,35 @@ public:
 		
 	}
 
+
+
+	// A function that calls all hospitals to handle all requests at the current timestep
+	void HandleHospitalPatients()
+	{
+		for (int i = 0; i < NumHospitals; i++)
+		{
+			Hospitals[i]->HandlePatients();
+		}
+	}
+
+
+	// A function that lets each hospital reassign their unhandled EPs to another hospital (b4 bonus)
+
+	void ReassignEPs(int timestep)
+	{
+		for (int i = 0; i < NumHospitals; i++)
+		{
+			for (int j = 0; j < NumHospitals; j++)
+			{
+				if (j == i)
+					continue;
+
+				if (Hospitals[j]->CarAvailable())
+				{
+					//here
+					continue;
+				}
+			}
+		}
+	}
 };

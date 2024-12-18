@@ -46,25 +46,29 @@ int main() {
 		// CurrentPatient is now useless
 		CurrentPatient = NULL;
 
-
-
-
-		int min = 1;
-		int max = 100;
-
-		// Generate a random number in the range
-		int random = min + (std::rand() % (max - min + 1));
-
-
-		 // to generate a new number in each run
-		//int random = rand() % 100; // generate a random number from 1 to 100
-		cout << "Random: " << random << endl;
+		// All hospitals should now check their requests and handle as much as possible
+		Org.HandleHospitalPatients();
 
 
 
 
 
-		if (random >= 10 && random < 20) {
+
+
+
+
+		// Old simulator function
+		//int min = 1;
+		//int max = 100;
+
+		//// Generate a random number in the range
+		//int random = min + (std::rand() % (max - min + 1));
+
+
+		// // to generate a new number in each run
+		////int random = rand() % 100; // generate a random number from 1 to 100
+		//cout << "Random: " << random << endl;
+		/*if (random >= 10 && random < 20) {
 			Org.HandleHospital(PatientType::SP);
 
 		}
@@ -87,12 +91,14 @@ int main() {
 		}
 		else if (random >= 91 && random < 95) {
 			Org.MoveBackToFree();
-		}
+		}*/
 
 
 		Org.CallUI(timestep);
 	}
 
+
+	// Produce output file
 	
 
 
