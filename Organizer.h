@@ -8,6 +8,7 @@
 #include"RemovablePriQueue.h"
 #include <fstream>
 #include"UI.h"
+#include<iomanip>
 #include <random>
 using namespace std;
 
@@ -33,7 +34,7 @@ private:
 	LinkedQueue<Patient*> AllPatients;
 	LinkedQueue<Cancellation*> AllCancellations;
 	LinkedQueue<Patient*> FinishedPatients;
-
+	LinkedQueue<Car*>CheckupList;
 	RemovablePriQueue<Car*> OutCars; // TODO: Should be removable priority queue
 	priQueue<Car*> BackCars;
 
@@ -45,6 +46,7 @@ private:
 	int** DistanceMatrix;
 	int NumOutCars, NumBackCars;
 	int NumFinishedPatients;
+	int NumCheckupCars;
 	int TotalNumRequests;
 	int NumCancellations;
 
@@ -57,6 +59,7 @@ private:
 	int AvgWaitTime;
 	int AvgBusyTime;
 	int Utilization;
+	int failprob;
 
 public:
 	// Constructor
@@ -112,6 +115,7 @@ public:
 	void LoadFile(string fileName)
 	{
 		float ScarSpeed, NcarSpeed;
+		int carfailprob;
 		int ScarNum, NcarNum, ReqNum, ReqTime,
 			PID, HID, PatientDistance, CancellationReqNum, CancelTime;
 		string PT;
@@ -147,6 +151,7 @@ public:
 			{
 				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
 				Hospitals[i]->AddSCar(C);
+
 			}
 			for (int j = 0; j < NcarNum; j++)
 			{
@@ -155,7 +160,11 @@ public:
 			}
 			Hospitals[i]->setTotalNumNcars(NcarNum);
 			Hospitals[i]->setTotalNumScars(ScarNum);
+
 		}
+		//set min and max outcars failure probability
+		file >> carfailprob;
+	    failprob = carfailprob;
 
 		file >> ReqNum;
 		TotalNumRequests = ReqNum;
@@ -193,6 +202,14 @@ public:
 
 		file.close();
 	}
+	//setters and getters for checkuplist
+	void AddcarCheckupList(Car* c) {
+		CheckupList.enqueue(c);
+		NumCheckupCars++;
+	}
+	int getNumCheckupCars() {
+		return NumCheckupCars;
+	}
 
 	// Setters
 	void SetNumHospitals(int n) { NumHospitals = n; }
@@ -200,14 +217,45 @@ public:
 	void SetNumCancellations(int n) { NumCancellations = n; }
 
 	// Getters
+	int getOUTfailprob() { return failprob; }
 	int GetTotalNumReq() { return TotalNumRequests; }
 	int GetTotalNumCanellation() { return NumCancellations; }
 	int GetTotalNumFinished() { return NumFinishedPatients; }
 	int GetNumHospitals() { return NumHospitals; }
+	int GetAvgWaitTime() {
+		Patient* p;
+		int totalwaitingtime = 0;
+		while (!FinishedPatients.isEmpty()) {
+			FinishedPatients.dequeue(p);
+			totalwaitingtime += p->getWaitingTime();
+		}
+		AvgWaitTime = totalwaitingtime / NumFinishedPatients;
+		return AvgWaitTime;
+	}
+	int GetAvgBusyTime() {
+		Car* c;
+		int pri;
+		int totalbusytime = 0;
+		while (!OutCars.isEmpty()) {
+			OutCars.dequeue(c, pri);
+			totalbusytime += c->getBusyTime();
+		}
+		AvgBusyTime = totalbusytime / NumFinishedPatients;
+		return AvgBusyTime;
+	}
+	/*int GetAvgUtilization() {
+		Patient* p;
+		while (!FinishedPatients.isEmpty()) {
+			FinishedPatients.dequeue(p);
+			timestep += getTimeStep();
+		}
+		Utilization = AvgBusyTime /timestep ;
+	}*/
 
 	RemovablePriQueue<Car*>& GetOutCars() { return OutCars; }
 	priQueue<Car*>& GetBackCars() { return BackCars; }
 	LinkedQueue<Patient*>& GetFinished() { return FinishedPatients; }
+	LinkedQueue<Car*>& GetCheckupList() { return CheckupList; }
 
 	//Destructor
 	~Organizer()
@@ -262,6 +310,21 @@ public:
 			for (int i = 0; i < NumHospitals; i++) {
 				if (Hospitals[i]->RemoveSP(RemovedPatient))
 				{
+					//Car* assignedCar = Hospitals[i]->(assignedCar);
+					//int assignmentTime = getTimeStep(); // Assuming this is the current time
+
+					//// Calculate Pickup Time (PT)
+					//int pickupTime = assignmentTime + (DistanceMatrix[RemovedPatient->getHID() - 1][RemovedPatient->getHID()] / assignedCar->getSpeed());
+
+					//// Calculate Finish Time (FT)
+					//int finishTime = pickupTime + (DistanceMatrix[RemovedPatient->getHID() - 1][RemovedPatient->getHID()] / assignedCar->getSpeed());
+
+					//// Calculate Patient Waiting Time (WT)
+					//int waitingTime = pickupTime - RemovedPatient->getRequestTime();
+					//RemovedPatient->setWaitingTime(waitingTime);
+					//RemovedPatient->setFinishTime(finishTime);
+
+
 					AddPatientFinishedList(RemovedPatient);
 				}
 			}
@@ -308,6 +371,7 @@ public:
 			Car* movedcar;
 
 			for (int i = 0; i < NumHospitals; i++) {
+
 				if (Hospitals[i]->RemoveNCar(movedcar))
 				{
 					int pri = 1;
@@ -467,11 +531,81 @@ public:
 		P = nullptr;
 		return true;
 	}
-	void CallUI(int timestep) {
-		UI call;
-		call.PrintOutput(timestep, Hospitals, &OutCars, &BackCars, &FinishedPatients, NumFinishedPatients, NumOutCars, NumBackCars, NumHospitals);
+	void FailAction() {
+		Car* tofail;
+		int pri;
+		if (OutCars.dequeue(tofail, pri))
+		{
+			NumOutCars--;
+			BackCars.enqueue(tofail, pri);
+			NumBackCars++;
+			if (tofail->getStatus() == CarStatus::Assigned) {
+				Patient* movedpatient = tofail->getAssignedPatient();
+				Hospital* currentH = Hospitals[movedpatient->getHID() - 1];
+				PatientType type = movedpatient->getType();
+				if (type == PatientType::Ep) {
+					int severity = movedpatient->getSeverity();
+					currentH->AddtoFrontEp(movedpatient, severity);
+				}
+				else if (type == PatientType::NP) {
+					currentH->AddtoFrontNp(movedpatient);
+				}
+				else if (type == PatientType::SP) {
+					currentH->AddtoFrontNp(movedpatient);
+				}
+			}
+			BackCars.dequeue(tofail, pri);
+			NumBackCars--;
+			CheckupList.enqueue(tofail);
+			NumCheckupCars++;
+		}
+		else {
+			//To test
+			//cout << "No OUT cars" << endl;
+		}
 	}
 
+		void InteractiveMode(int timestep) {
+			UI call;
+			call.PrintOutput(timestep, Hospitals, &OutCars, &BackCars, &FinishedPatients, &CheckupList, NumFinishedPatients, NumOutCars, NumBackCars, NumHospitals, NumCheckupCars);
+
+		}
+		void SilentMode() {
+			cout << "Silent mode, simulation starts..." << endl;
+			cout << "Simulation ends, output file created" << endl;
+		}
+
+		void OutputFile() {
+			ofstream Output("Output File.txt"); //open output file
+			Patient* p;
+
+			if (Output.is_open()) {
+				//print headers
+				Output << std::setw(10) << "FT";
+				Output << std::setw(10) << "PID";
+				Output << setw(10) << "QT";
+				Output << setw(10) << "WT" << endl;
+				for (int i = 0; i < TotalNumRequests && !FinishedPatients.isEmpty(); i++) { // loop on finished patients and print the data
+					FinishedPatients.dequeue(p);
+					Output << std::setw(10) << p->getFinishTime();
+					Output << std::setw(10) << p->getPID();
+					Output << std::setw(10) << p->getRequestTime();
+					Output << std::setw(10) << p->getWaitingTime() << endl;
+				}
+
+				Output << "Patients: " << TotalNumRequests;
+				Output << std::setw(6) << "[NP: " << TotalNumNP << "," << "SP: " << TotalNumSP << "," << "EP: " << TotalNumEP << "]" << endl;
+				Output << "Hospitals= " << NumHospitals << endl;
+				Output << "Cars: " << TotalNumNC + TotalNumSC;
+				Output << std::setw(6) << "[SCar: " << TotalNumSC << "," << "NCar: " << TotalNumNC << "]" << endl;
+				Output << "Avg Wait Time= " << GetAvgWaitTime() << endl;
+				Output << "Avg Busy Time= " << GetAvgBusyTime() << endl;
+				Output << "Avg Utilization= " << Utilization << endl;
+			}
+			else {
+				cout << "Error opening file!" << endl;
+			}
+		}
 	// A function that calls all hospitals to handle all requests at the current timestep
 	void HandleHospitalPatients()
 	{
@@ -522,62 +656,71 @@ public:
 
 	void Simulate(string sample_input)
 	{
-		LoadFile(sample_input);
+		Organizer Org;
+		UI ui;
+		Org.LoadFile("sample_input_5.txt");
+		int mode = ui.GetInput();
 
 		int timestep = 0;
 		srand(static_cast<unsigned>(time(0)));
 		// Program will end when all patients have been moved to the finish list
-
 		// Cancel requests are not handled in phase 1.2
-
 		srand(static_cast<unsigned>(time(0)));  // to generate a new number in each run
-		while (GetTotalNumFinished() != GetTotalNumReq()) {
+		while (Org.GetTotalNumFinished() != Org.GetTotalNumReq()) {
 			timestep++;
 			// Patient to be moved from the AllPatients to its hospital
 			Patient* CurrentPatient;
 			// Loop stops when all requests at this time step have been allocated to their hospital
-			while (AllocatePatient(timestep, CurrentPatient))
+			while (Org.AllocatePatient(timestep, CurrentPatient))
 			{
 				// Hospital the patient's request belongs to
-				Hospital* PatientsHospital = getHospital(CurrentPatient->getHID());
+				Hospital* PatientsHospital = Org.getHospital(CurrentPatient->getHID());
 				PatientType patientType = CurrentPatient->getType();
 				if (patientType == PatientType::Ep) {
 					PatientsHospital->AddEP(CurrentPatient, CurrentPatient->getSeverity());
 				}
 				else if (patientType == PatientType::NP) {
 					PatientsHospital->AddNP(CurrentPatient);
+
 				}
 				else if (patientType == PatientType::SP) {
 					PatientsHospital->AddSP(CurrentPatient);
 				}
+
 			}
 			// After loop finishes, all relevant patients have been added to their hospitals.
 			// CurrentPatient is now useless
 			CurrentPatient = NULL;
 
-			// All hospitals should now check their requests and handle as much as possible
-			HandleHospitalPatients();
-			// Reassign unhandled eps.
-			ReassignEPs();
 
-			// Old simulator function
-			//int min = 1;
-			//int max = 100;
 
-			//// Generate a random number in the range
-			//int random = min + (std::rand() % (max - min + 1));
 
-			// // to generate a new number in each run
-			////int random = rand() % 100; // generate a random number from 1 to 100
-			//cout << "Random: " << random << endl;
-			/*if (random >= 10 && random < 20) {
+			int min = 1;
+			int max = 100;
+
+			// Generate a random number in the range
+			int random = min + (std::rand() % (max - min + 1));
+
+
+			// to generate a new number in each run
+		   //int random = rand() % 100; // generate a random number from 1 to 100
+
+
+
+
+
+
+			if (random >= 10 && random < 20) {
 				Org.HandleHospital(PatientType::SP);
+
 			}
 			else if (random >= 20 && random < 25) {
 				Org.HandleHospital(PatientType::Ep);
+
 			}
 			else if (random >= 30 && random < 40) {
 				Org.HandleHospital(PatientType::NP);
+
 			}
 			else if (random >= 40 && random < 45) {
 				Org.HandleCars(CarType::SC);
@@ -590,10 +733,22 @@ public:
 			}
 			else if (random >= 91 && random < 95) {
 				Org.MoveBackToFree();
-			}*/
+			}
+			int OUTfailprob = Org.getOUTfailprob();
+			if (random > 0 && random <= OUTfailprob) {
+				Org.FailAction();
+			}
 
-			CallUI(timestep);
-			// Produce output file
+
+			if (mode == 1) { // if it's in interactive mode print all necessary data from the organizer class
+				cout << "Random: " << random << endl;
+				Org.InteractiveMode(timestep);
+			}
 		}
+		if (mode == 2) {
+			Org.SilentMode();
+		}
+		Org.OutputFile();
 	}
+
 };

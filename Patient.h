@@ -41,6 +41,7 @@ public:
 	}
 	void setAssignmentTime(int time) { assignmentTime = time; }
 	void setFinishTime(int time) { finishTime = time; }
+	void setWaitingTime(int time) { waitingTime = time; }
 	void setHID(int id) { HID = id; }
 	void setHospitalDistance(float distance) { hospitalDistance = distance; }
 	void setCarId(int id) { Carid = id; }
