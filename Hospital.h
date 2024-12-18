@@ -18,6 +18,8 @@ private:
 
 	int NumSPRequests, NumNPRequests, NumEPRequests;
 
+	bool HasUnassignedEP;
+
 	// Lists
 	LinkedQueue<Patient*> SPlist;
 	RemovableQueue<Patient*> NPlist;  // NP's have the ability to cancel.
@@ -137,6 +139,10 @@ public:
 	void setAvailableNumScars(int n) {
 		AvailableNumScars = n;
 	}
+	void setHasUnassignedEP(bool b)
+	{
+		HasUnassignedEP = b;
+	}
 
 	// Getters
 	int getTotalNumScars() const {
@@ -166,6 +172,14 @@ public:
 	int getNumNPRequests() const {
 		return NumNPRequests;
 	}
+
+	bool getHasUnassignedEP() const {
+		return HasUnassignedEP;
+	}
+	bool getEPlistEmpty()const {
+		return EPlist.isEmpty();
+	}
+
 	priQueue<Patient*>* GetEPlist() {
 		return &EPlist;
 	}
@@ -197,7 +211,7 @@ public:
 	void HandlePatients()
 	{
 		// The patient that will be removed from requests list
-		Patient* p; 
+		Patient* p;
 		int severity;
 		// The car of the patient
 		Car* c;
@@ -219,7 +233,17 @@ public:
 			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
 			c->setAssignedPatient(p);
 		}
-		
+
+		// Here we decide if the Hospital has unassigned EP (to be reassigned later)
+
+		if (EPlist.isEmpty())
+		{
+			HasUnassignedEP = false;
+		}
+		else
+		{
+			HasUnassignedEP = true;
+		}
 
 		// Patient-Car assignment will stop, if no more requests present or no cars are available
 		while (!SPlist.isEmpty() && !Scars.isEmpty())
@@ -242,6 +266,6 @@ public:
 			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
 			c->setAssignedPatient(p);
 		}
-
 	}
+
 };

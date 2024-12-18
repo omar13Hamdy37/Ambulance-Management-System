@@ -115,23 +115,19 @@ public:
 				}
 				cout << *(current->getItem(pri)) << ", ";
 				current = current->getNext();
-
 			}
-	/*void priQueue<T>::counter() const {
-		int count = 0;
-		priNode<T>* current = head;
-		while (current) {
-			count++;
-			current = current->getNext();
-		}
-		cout << "Total elements: " << count << endl;
-	}*/
-
+			/*void priQueue<T>::counter() const {
+				int count = 0;
+				priNode<T>* current = head;
+				while (current) {
+					count++;
+					current = current->getNext();
+				}
+				cout << "Total elements: " << count << endl;
+			}*/
 		}
 		cout << endl;
 	}
-
-
 
 	int counter() const { // No template redeclaration needed
 		int count = 0;
@@ -142,6 +138,4 @@ public:
 		}
 		return count;
 	}
-
-	
 };

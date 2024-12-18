@@ -220,11 +220,11 @@ bool LinkedQueue<T>::peek(T& frntEntry) const
 template <typename T>
 void LinkedQueue<T>::printPointers()const {
 	if (isEmpty())
-		cout <<"";
+		cout << "";
 	else
 	{
 		Node<T>* current = frontPtr;
-		
+
 		while (current)
 		{
 			if (!current->getNext()) {             //If Last item don't print ','
@@ -233,9 +233,7 @@ void LinkedQueue<T>::printPointers()const {
 			}
 			cout << *(current->getItem()) << ", ";
 			current = current->getNext();
-			
 		}
-		
 	}
 	cout << endl;
 }
@@ -245,7 +243,7 @@ int LinkedQueue<T>::counter() {
 	int count = 0;
 
 	while (current) {
-		count++;                
+		count++;
 		current = current->getNext();
 	}
 

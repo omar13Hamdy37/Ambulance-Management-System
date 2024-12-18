@@ -8,18 +8,8 @@
 using namespace std;
 
 int main() {
-
-	
 	// Call file loading function
 
 	Organizer Org;
 	Org.Simulate("sample_input.txt");
-
-
-	
-	
-
-
 }
-
-
