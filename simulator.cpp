@@ -83,7 +83,7 @@ int main() {
 			Org.HandleCars(CarType::NC);
 		}
 		else if (random >= 80 && random < 90) {
-			Org.MoveOutToBack();
+			Org.MoveOutToBack(1);
 		}
 		else if (random >= 91 && random < 95) {
 			Org.MoveBackToFree();
