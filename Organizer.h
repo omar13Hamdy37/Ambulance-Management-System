@@ -437,14 +437,16 @@ public:
 		// loop on all back cars with same timestep
 		while (BackCars.peek(tomove, pri))
 		{
-
-			if ((pri * -1) != Timestep || (P == tomove->getAssignedPatient()))
+			// Not time then break
+			if ((pri * -1) != Timestep)
 				break;
 
+			// if car dequeued null then break
 			if (!BackCars.dequeue(tomove, pri))
 				break;
-
+			P = tomove->getAssignedPatient();
 			NumBackCars--;
+
 			tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
 			P->setCarId(-1); // -1: is not assigned a car
 			AddPatientFinishedList(P);
@@ -751,9 +753,11 @@ public:
 			HandleHospitalPatients();
 			
 			// The cars should start moving from free to back. (All hospitals , All cars)
-			MoveFreeToOut(timestep);
-			MoveOutToBack(timestep);
 			MoveBackToFree(timestep);
+			MoveOutToBack(timestep);
+			MoveFreeToOut(timestep);
+
+
 			ReassignEPs();
 
 			// Reassigned patients will be handled in the next time step. To imitate real life.
