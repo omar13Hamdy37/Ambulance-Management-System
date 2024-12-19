@@ -303,7 +303,7 @@ public:
 			{
 				RemoveSCar(c);
 			}
-			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
+
 			c->setAssignedPatient(p);
 			AddAssignedCar(c);
 		}
@@ -326,7 +326,6 @@ public:
 			RemoveSP(p);
 			// We have the car. (if empty we wouldn't enter while loop)
 			RemoveSCar(c);
-			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
 			c->setAssignedPatient(p);
 			AddAssignedCar(c);
 		}
@@ -338,7 +337,6 @@ public:
 			RemoveNP(p);
 			// We have the car. (if empty we wouldn't enter while loop)
 			RemoveNCar(c);
-			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
 			c->setAssignedPatient(p);
 			AddAssignedCar(c);
 		}

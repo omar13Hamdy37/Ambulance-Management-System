@@ -22,7 +22,7 @@ private:
 	float hospitalDistance; // Distance between patient and nearest hospital
 
 	//Car* AssignedCar;
-	int Carid; //id of assigned car
+	int Carid; //id of assigned car.  -1 if not assigned aa c
 	PatientType type; // NP or SP or EP
 
 	int severity; // -1 if not an EP
