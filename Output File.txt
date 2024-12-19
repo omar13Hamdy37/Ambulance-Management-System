@@ -1,10 +1,10 @@
         FT       PID        QT        WT
-         2         2         2         0
+         4         2         2         1
          5         1         1         2
          6         6         4         1
          6         5         4         1
          7         3         3         2
-        11         4         3         4
+        13         4         3         5
 Patients: 6 [NP: 2,SP: 2,EP: 2]
 Hospitals= 2
 Cars: 9[SCar: 4,NCar: 5]

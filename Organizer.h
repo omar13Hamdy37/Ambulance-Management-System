@@ -397,12 +397,6 @@ public:
 		
 		while (OutCars.peek(tomove, pri)) // pri = (-1) * picktime
 		{
-			// If car arrived to patient before current timestep process it
-			if (pri * -1 < Timestep)
-			{
-				MoveOutToBack(pri * -1);
-				continue; // process the next car of the current timestep
-			}
 			// Checking if car's arrival time is this time step
 			if (pri * -1 != Timestep)
 				break; //car shouldnt be returned to backlist yet
@@ -444,12 +438,6 @@ public:
 		// loop on all back cars with same timestep
 		while (BackCars.peek(tomove, pri))
 		{
-			// If car arrived to patient before current timestep process it
-			if (pri * -1 < Timestep)
-			{
-				MoveBackToFree(pri * -1);
-				continue;
-			}
 			// Not time then break
 			if ((pri * -1) != Timestep)
 				break;
