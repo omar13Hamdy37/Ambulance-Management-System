@@ -438,12 +438,14 @@ public:
 		while (BackCars.peek(tomove, pri))
 		{
 
-			if ((pri * -1) != Timestep || (P == tomove->getAssignedPatient()))
+			if ((pri * -1) != Timestep )
 				break;
 
 			if (!BackCars.dequeue(tomove, pri))
 				break;
 
+			P = tomove->getAssignedPatient();
+			
 			NumBackCars--;
 			tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
 			P->setCarId(-1); // -1: is not assigned a car

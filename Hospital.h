@@ -268,11 +268,11 @@ public:
 	{
 		return !(Ncars.isEmpty() && Scars.isEmpty());
 	}
-	void AddAssignedCar(Car* C)
+	void AddAssignedCar(Car*& C)
 	{
 		AssignedCars.enqueue(C);
 	}
-	bool getAssignedCar(Car* C)
+	bool getAssignedCar(Car*& C)
 	{
 		if (AssignedCars.isEmpty())
 			return false;
