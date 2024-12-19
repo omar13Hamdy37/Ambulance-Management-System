@@ -9,6 +9,7 @@
 #include <fstream>
 #include"UI.h"
 #include<iomanip>
+#include <cmath>
 #include <random>
 using namespace std;
 
@@ -396,6 +397,12 @@ public:
 		
 		while (OutCars.peek(tomove, pri)) // pri = (-1) * picktime
 		{
+			// If car arrived to patient before current timestep process it
+			if (pri * -1 < Timestep)
+			{
+				MoveOutToBack(pri * -1);
+				continue; // process the next car of the current timestep
+			}
 			// Checking if car's arrival time is this time step
 			if (pri * -1 != Timestep)
 				break; //car shouldnt be returned to backlist yet
@@ -411,7 +418,7 @@ public:
 			P->setWaitingTime(P->getPickupTime() - P->getAssignmentTime());
 
 			// Setting time patient will arrive to hospital 
-			P->setFinishTime(P->getPickupTime() + P->getHospitalDistance() / tomove->getSpeed());
+			P->setFinishTime(P->getPickupTime() + ceil(P->getHospitalDistance() / tomove->getSpeed()));
 
 			// += busy time to add time car traveled to patient 
 			tomove->updateBusyTime(P->getPickupTime() - P->getAssignmentTime());
@@ -437,16 +444,22 @@ public:
 		// loop on all back cars with same timestep
 		while (BackCars.peek(tomove, pri))
 		{
-
-			if ((pri * -1) != Timestep )
+			// If car arrived to patient before current timestep process it
+			if (pri * -1 < Timestep)
+			{
+				MoveBackToFree(pri * -1);
+				continue;
+			}
+			// Not time then break
+			if ((pri * -1) != Timestep)
 				break;
 
+			// if car dequeued null then break
 			if (!BackCars.dequeue(tomove, pri))
 				break;
-
 			P = tomove->getAssignedPatient();
-			
 			NumBackCars--;
+
 			tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
 			P->setCarId(-1); // -1: is not assigned a car
 			AddPatientFinishedList(P);
@@ -501,7 +514,7 @@ public:
 
 				// Patient's actual pickup time will be set to patient when they are picked
 				// Just in case they cancel
-				int PickupTime = AssignedP->getAssignmentTime() + AssignedP->getHospitalDistance() / AssignedC->getSpeed();
+				int PickupTime = AssignedP->getAssignmentTime() + ceil(AssignedP->getHospitalDistance() / AssignedC->getSpeed());
 				pri = -1 * PickupTime;  // prioritize based on pick time lower pick time = higher priority
 
 				// enqueue car to OutCars
@@ -753,9 +766,11 @@ public:
 			HandleHospitalPatients();
 			
 			// The cars should start moving from free to back. (All hospitals , All cars)
-			MoveFreeToOut(timestep);
-			MoveOutToBack(timestep);
 			MoveBackToFree(timestep);
+			MoveOutToBack(timestep);
+			MoveFreeToOut(timestep);
+
+
 			ReassignEPs();
 
 			// Reassigned patients will be handled in the next time step. To imitate real life.
