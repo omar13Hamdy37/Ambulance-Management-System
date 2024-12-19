@@ -87,9 +87,9 @@ public:
 	    return assignedPatient->getAssignmentTime() + assignedPatient->getHospitalDistance() / speed;
 	}
 	
-	void updateBusyTime()
+	void updateBusyTime(int time)
 	{
 	
-	    busyTime +=  - assignedPatient->getAssignmentTime();
+	    busyTime +=  time; 
 	}
 };

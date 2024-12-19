@@ -25,8 +25,10 @@ private:
 	RemovableQueue<Patient*> NPlist;  // NP's have the ability to cancel.
 	priQueue<Patient*> EPlist;       // Sorting emergency patients using priQueue
 
+	//LinkedQueue<Patient*> NpWaitList;
 	LinkedQueue<Car*> Scars;
 	LinkedQueue<Car*> Ncars;
+	LinkedQueue<Car*> AssignedCars;
 
 public:
 	// Constructor
@@ -244,6 +246,72 @@ public:
 	LinkedQueue<Car*>* GetNCar() {
 		return &Ncars;
 	}
+
+	int getNCarspeed() {
+		Car* C = nullptr;
+		Ncars.peek(C);
+		return C->getSpeed();
+	}
+	int getSCarspeed() {
+		Car* C = nullptr;
+		Scars.peek(C);
+		return C->getSpeed();
+	}
+
+	////initial thought for assign normal patient..  TOREVISE
+	//bool RemovefromNpWait(Patient* P)
+	//{
+	//	if (NpWaitList.isEmpty())
+	//	{
+	//		P = nullptr;
+	//		return false;
+	//	}
+	//	NumNPRequests--;
+	//	return NpWaitList.dequeue(P);
+	//}
+	//void AddToNpWait(Patient* P)
+	//{
+	//	NpWaitList.enqueue(P);
+	//}
+	//bool AssignNP(int timestep)
+	//{
+	//	Patient* P = nullptr;
+	//	Car* C = nullptr;
+
+	//	// Check if there are available Ncars
+	//	if (AvailableNumNCars > 0)
+	//	{
+	//		// Try to get a patient from the waitlist first
+	//		if (!RemovefromNpWait(P))
+	//		{
+	//			// If waitlist is empty remove from nplist
+	//			if (!RemoveNP(P))
+	//			{
+	//				return false;
+	//			}
+	//		}
+
+	//		//Peak the first available Ncar   -- Organizer is responsible for removing the car...
+	//		if (Ncars.peek(C) && P != nullptr)
+	//		{
+	//			C->setAssignedPatient(P);
+	//			P->setCarId(C->getCarID());
+	//			P->setAssignmentTime(timestep);
+	//			return true;
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// If no cars are available add the patient to waitlist
+	//		if (RemoveNP(P))
+	//		{
+	//			AddToNpWait(P);
+	//			return false;  
+	//		}
+	//	}
+
+	//	return false; 
+	//}
 	// Operator overloading
 
 	// overloading to allow the comparison of Hospitals with int ID. To see if the Hospital object has that ID.
@@ -255,7 +323,18 @@ public:
 	{
 		return !(Ncars.isEmpty() && Scars.isEmpty());
 	}
+	void AddAssignedCar(Car* C)
+	{
+		AssignedCars.enqueue(C);
+	}
+	bool getAssignedCar(Car* C)
+	{
+		if (AssignedCars.isEmpty())
+			return false;
 
+		AssignedCars.dequeue(C);
+		return true;
+	}
 	// A function that handles all current requests for the hospital
 	void HandlePatients()
 	{
@@ -281,6 +360,7 @@ public:
 			}
 			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
 			c->setAssignedPatient(p);
+			AddAssignedCar(c);
 		}
 
 		// Here we decide if the Hospital has unassigned EP (to be reassigned later)
@@ -303,6 +383,7 @@ public:
 			RemoveSCar(c);
 			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
 			c->setAssignedPatient(p);
+			AddAssignedCar(c);
 		}
 
 		// Patient-Car assignment will stop, if no more requests present or no cars are available
@@ -314,6 +395,7 @@ public:
 			RemoveNCar(c);
 			//TODO: USE OMAR'S FUNCTION THAT HANDLES PICKING PATIENTS.
 			c->setAssignedPatient(p);
+			AddAssignedCar(c);
 		}
 	}
 

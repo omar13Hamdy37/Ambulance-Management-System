@@ -381,42 +381,155 @@ public:
 			}
 		}
 	}
-
 	// Handles moving cars from out to back
-	void MoveOutToBack() {
-		Car* tomove;
+	void MoveOutToBack(int Timestep) {
+		Car* tomove = nullptr;
+		Patient* P = nullptr;
 		int  pri;
+		
+		while (OutCars.peek(tomove, pri)) // pri = (-1) * picktime
+		{
+			if (pri * -1 != Timestep)
+				break; //car shouldnt be returned to backlist yet
+			
+			P = tomove->getAssignedPatient();
+			if (!P)
+				break;
+			P->setPickupTime(pri * -1);
+			P->setFinishTime(P->getPickupTime() + P->getHospitalDistance() / tomove->getSpeed());
+			tomove->updateBusyTime(P->getPickupTime() - P->getAssignmentTime());
+			OutCars.dequeue(tomove, pri);
+			int newPri = -1 * P->getFinishTime();
+			tomove->setStatus(CarStatus::Loaded);
+			BackCars.enqueue(tomove, newPri); //least finishtime should be first in queue
+			NumBackCars++;
+			NumOutCars--;
+		}
 
 		// Checks if outcars has a car
-		if (OutCars.dequeue(tomove, pri))
+		/*if (OutCars.dequeue(tomove, pri))
 		{
 			BackCars.enqueue(tomove, pri);
 			NumOutCars--;
 			NumBackCars++;
+		}*/
+	}
+	// loops on back cars list
+	void MoveBackToFree(int Timestep) { 
+
+		Car* tomove = nullptr;
+		Patient* P = nullptr;
+		int pri;
+
+		// loop on all back cars with same timestep
+		while (BackCars.peek(tomove, pri))
+		{
+
+			if ((pri * -1) != Timestep || (P = tomove->getAssignedPatient()))
+				break;
+
+			if (!BackCars.dequeue(tomove, pri))
+				break;
+
+			NumBackCars--;
+			tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
+			P->setCarId(-1); // -1: is not assigned a car
+			AddPatientFinishedList(P);
+			tomove->setAssignedPatient(nullptr);
+			tomove->setStatus(CarStatus::Ready);
+			int hid = tomove->getHID();
+
+			Hospital* H = Hospitals[hid - 1];
+			CarType Ctype = tomove->getType();
+			if (Ctype == CarType::NC)
+			{
+				H->AddNCar(tomove);
+			}
+			else if (Ctype == CarType::SC)
+			{
+				H->AddSCar(tomove);
+			}
+			H = nullptr;
+			tomove = nullptr;
+			P = nullptr;
 		}
 	}
-	// Moves one car from back list to its hospital
-	void MoveBackToFree() {
-
-		Car* tomove;
+	// Assigning a car, removing it from its hospital and puting it in OutCars
+	bool MoveFreeToOut(int Timestep, int hid)
+	{
+		Patient* AssignedP = nullptr;
+		Car* AssignedC = nullptr;
+		bool Cassigned = false;
 		int pri;
-		if (BackCars.dequeue(tomove, pri))
+
+		if (hid < 1 || hid > NumHospitals)
+			return false;
+
+		Hospital* H = Hospitals[hid - 1];
+
+		H->HandlePatients();
+		while (H->getAssignedCar(AssignedC))
 		{
-			NumBackCars--;
-			Hospital* currentH = Hospitals[tomove->getHID() - 1];
+			AssignedP = AssignedC->getAssignedPatient();
+			
+			if (AssignedP == nullptr)
+				continue; //just in case there was an error when assigning patients
 
-			CarType cartype = tomove->getType();
-			if (cartype == CarType::NC)
-			{
-				currentH->AddNCar(tomove);
-			}
-			else
-			{
-				currentH->AddSCar(tomove);
-			}
+			AssignedP->setAssignmentTime(Timestep);
+			int Picktime = AssignedP->getAssignmentTime() + AssignedP->getHospitalDistance() / AssignedC->getSpeed();
+			pri = -1 * Picktime;  // prioritize based on pick time lower pick time = higher priority
+
+			// enqueue car to OutCars
+			OutCars.enqueue(AssignedC, pri);
+			NumOutCars++;
+			Cassigned = true;
 		}
+		return Cassigned;
+	}
+	bool CancelRequest(int Timestep)
+	{
+		Cancellation* CancelReq = nullptr;
+		Car* Car = nullptr;
+		Patient* P = nullptr;
+		int pri;
+		while (AllCancellations.dequeue(CancelReq))
+		{	
 
+			int hid = CancelReq->HID;
+			if (hid < 1 || hid > NumHospitals) { //check validity of hid
+				delete CancelReq; //this request shouldn't happen
+				continue;
+			}
+			Hospital* H = Hospitals[hid - 1];
+			H->GetNPlist()->removeItem(P, CancelReq->PID);
 
+			if (!P)
+				continue;
+
+			if (Timestep > P->getAssignmentTime() + P->getHospitalDistance() / H->getNCarspeed())
+				continue; //patient cannot cancel a request while in a car ***waiting P only***
+
+			int Carid = P->getCarId();
+
+			if (Carid == -1) { // no car assigned
+				continue; // No car to handle
+			}
+
+			//getting car that was assigned this patient
+			if (OutCars.removeItem(Car, pri, Carid))
+			{
+				Car->setAssignedPatient(nullptr);
+				Car->updateBusyTime((Timestep - P->getAssignmentTime()) * 2);
+				P->setCarId(-1); //car removed from patient
+				BackCars.enqueue(Car, pri);
+				NumOutCars--;
+				NumBackCars++;
+			}
+
+		}
+		CancelReq = nullptr;
+		P = nullptr;
+		return true;
 	}
 	void FailAction() {
 		Car* tofail;
@@ -616,10 +729,10 @@ public:
 				Org.HandleCars(CarType::NC);
 			}
 			else if (random >= 80 && random < 90) {
-				Org.MoveOutToBack();
+				Org.MoveOutToBack(1);
 			}
 			else if (random >= 91 && random < 95) {
-				Org.MoveBackToFree();
+				Org.MoveBackToFree(1);
 			}
 			int OUTfailprob = Org.getOUTfailprob();
 			if (random > 0 && random <= OUTfailprob) {
