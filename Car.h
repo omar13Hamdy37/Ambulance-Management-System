@@ -18,6 +18,9 @@ enum class CarStatus {
 class Car
 {
 private:
+	// If Ncars or Scars list in the hospital is empty we should still be able to access Ncar and Scar speed
+	static int Sspeed;
+	static int Nspeed;
 	int CarID;
 	CarType type;
 	float speed;
@@ -41,6 +44,8 @@ public:
 	void setAssignedPatient(Patient* patient) { assignedPatient = patient; status = CarStatus::Assigned; }
 	void PickPatient() { status = CarStatus::Loaded; }
 	void setCarFailed(bool b) { failedCar = b; }
+	static void setScarSpeed(int speed) { Sspeed = speed; }
+	static void setNcarSpeed(int speed) { Nspeed = speed; }
 
 
 	// Getters
@@ -54,7 +59,8 @@ public:
 	int getBusyTime() const { return busyTime; }
 
 	bool getFailedCar() const { return failedCar; }
-
+	static int getScarSpeed() { return Sspeed; }
+	static int getNcarSpeed() { return Nspeed; }
 
 	// Operator overloading
 
@@ -102,3 +108,5 @@ public:
 	    busyTime +=  time; 
 	}
 };
+int Car::Sspeed = 0; 
+int Car::Nspeed = 0;

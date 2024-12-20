@@ -25,10 +25,10 @@ private:
 	RemovableQueue<Patient*> NPlist;  // NP's have the ability to cancel.
 	priQueue<Patient*> EPlist;       // Sorting emergency patients using priQueue
 	
-	RemovableQueue<Patient*> NpWaitList;
 	LinkedQueue<Car*> Scars;
 	LinkedQueue<Car*> Ncars;
 
+	RemovableQueue<Patient*> NpWaitList;
 	LinkedQueue<Car*> AssignedCars;
 
 public:
@@ -89,7 +89,10 @@ public:
 		EPlist.enqueue(p, severity);
 		NumEPRequests++;
 	}
-
+	void AddNPWaitlist(Patient* p)
+	{
+		NpWaitList.enqueue(p);
+	}
 	// Remove Request
 
 	bool RemoveSP(Patient*& p)
@@ -123,6 +126,14 @@ public:
 		}
 		NumEPRequests--;
 		return EPlist.dequeue(p, severity);
+	}
+
+	bool RemoveNpWait(Patient*& p, int pid)
+	{
+		if (NpWaitList.isEmpty())
+			return false;
+
+		NpWaitList.removeItem(p, pid);
 	}
 	// functions to add a patient to the front of a queue 
 	void AddtoFrontSp(Patient* p) {
@@ -341,7 +352,6 @@ public:
 			// We have the car. (if empty we wouldn't enter while loop)
 			RemoveNCar(c);
 			c->setAssignedPatient(p);
-			NpWaitList.enqueue(p);
 			AddAssignedCar(c);
 		}
 	}

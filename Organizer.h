@@ -133,6 +133,9 @@ public:
 		}
 
 		file >> NumHospitals >> ScarSpeed >> NcarSpeed;
+		// Setting The constant speed for all car types
+		Car::setScarSpeed(ScarSpeed);
+		Car::setNcarSpeed(NcarSpeed);
 
 		CreateHospitals(NumHospitals);
 
@@ -407,9 +410,9 @@ public:
 
 			Hospital* H = Hospitals[P->getHID() - 1];
 
-			// If Patient is a normal patient remove it from NPWaitList
+			// If Patient is a normal patient remove it from NPWaitList once pickedup
 			if (P->getType() == PatientType::NP)
-				H->GetNpWaitList()->removeItem(P, P->getPID());
+				H->RemoveNpWait(P, P->getPID());
 			// Setting the time patient was picked
 			P->setPickupTime(pri * -1);
 
@@ -458,14 +461,15 @@ public:
 			{
 				P = tomove->getAssignedPatient();
 
-
-
-				tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
-				P->setCarId(-1); // -1: is not assigned a car
-				AddPatientFinishedList(P);
-				tomove->setAssignedPatient(nullptr);
-				tomove->setStatus(CarStatus::Ready);
-
+				// Patient can cancel his request -> no need to handle the patient 
+				if (P)
+				{
+					tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
+					P->setCarId(-1); // -1: is not assigned a car
+					AddPatientFinishedList(P);
+					tomove->setAssignedPatient(nullptr);
+					tomove->setStatus(CarStatus::Ready);
+				}
 
 				int hid = tomove->getHID();
 				Hospital* H = Hospitals[hid - 1];
@@ -586,7 +590,7 @@ public:
 				}
 
 				// If patient is on their way to the hospital
-				if (Timestep > P->getAssignmentTime() + ceil( P->getHospitalDistance() / H->getNCarspeed()))
+				if (Timestep > P->getAssignmentTime() + ceil( P->getHospitalDistance() / Car::getNcarSpeed()))
 					continue; //patient cannot cancel a request while in a car ***waiting P only***
 
 				// Getting car that was assigned this patient
@@ -805,7 +809,7 @@ public:
 				}
 				else if (patientType == PatientType::NP) {
 					PatientsHospital->AddNP(CurrentPatient);
-
+					PatientsHospital->AddNPWaitlist(CurrentPatient);
 				}
 				else if (patientType == PatientType::SP) {
 					PatientsHospital->AddSP(CurrentPatient);
@@ -824,11 +828,11 @@ public:
 			MoveBackToFree(timestep);
 			MoveOutToBack(timestep);
 			MoveFreeToOut(timestep);
-
-
-			//ReassignEPs();
-
 			CancelRequest(timestep);
+
+
+			ReassignEPs();
+
 
 			// Reassigned patients will be handled in the next time step. To imitate real life.
 
