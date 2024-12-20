@@ -11,5 +11,5 @@ int main() {
 	// Call file loading function
 
 	Organizer Org;
-	Org.Simulate("small_test_file.txt");
+	Org.Simulate("small_input_test_2.txt");
 }

@@ -115,7 +115,7 @@ public:
 	}
 
 	// Loading the file
-	void LoadFile(string fileName)
+	bool  LoadFile(string fileName)
 	{
 		float ScarSpeed, NCarSpeed;
 		int CarFailProb;
@@ -129,7 +129,7 @@ public:
 
 		if (!file.is_open()) {
 			cout << "Error opening file: " << fileName << endl;
-			return;
+			return false;
 		}
 
 		file >> NumHospitals >> ScarSpeed >> NCarSpeed;
@@ -208,6 +208,7 @@ public:
 		}
 
 		file.close();
+		return true;
 	}
 
 	// Setters
@@ -697,8 +698,12 @@ public:
 	// Simulating the Ambulance Management System given a certain input file.
 	void Simulate(string sample_input)
 	{
+		// If error opening file
+		if (!LoadFile(sample_input))
+		{
+			return;
+		}
 
-		LoadFile(sample_input);
 		int mode = ui.GetInput();
 
 		int timestep = 0;
