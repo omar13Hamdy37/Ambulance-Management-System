@@ -56,7 +56,7 @@ private:
 
 	int AvgWaitTime;
 	int AvgBusyTime;
-	int Utilization;
+	float Utilization;
 	int FailProb;
 
 	// UI member
@@ -100,7 +100,7 @@ public:
 	}
 
 	// Adds patient to finished lsit
-	void AddPatientFinishedList(Patient* p)
+	void AddPatientFinishedList(Patient*& p)
 	{
 		FinishedPatients.enqueue(p);
 		NumFinishedPatients++;
@@ -226,12 +226,12 @@ public:
 		return NumCheckupCars;
 	}
 
-	int GetAvgWaitTime() {
+	int GetAvgWaitTime(LinkedQueue<Patient*>& temp) {
 		Patient* p;
 		int totalwaitingtime = 0;
 		int finishedp = GetTotalNumFinished();
-		while (!FinishedPatients.isEmpty()) {
-			FinishedPatients.dequeue(p);
+		while (!temp.isEmpty()) {
+			temp.dequeue(p);
 			totalwaitingtime += p->getWaitingTime();
 		}
 		AvgWaitTime = totalwaitingtime /finishedp ;
@@ -241,21 +241,26 @@ public:
 		Car* c;
 		int pri;
 		int totalbusytime = 0;
-		while (!OutCars.isEmpty()) {
-			OutCars.dequeue(c, pri);
-			totalbusytime += c->getBusyTime();
+		for (int i = 0; i < NumHospitals; i++)
+		{
+			Car* car;
+			while (Hospitals[i]->RemoveNCar(car))
+			{
+				totalbusytime += car->getBusyTime();
+			}
+			while (Hospitals[i]->RemoveSCar(car))
+			{
+				totalbusytime += car->getBusyTime();
+			}
+
 		}
 		AvgBusyTime = totalbusytime / NumFinishedPatients;
 		return AvgBusyTime;
 	}
-	/*int GetAvgUtilization() {
-		Patient* p;
-		while (!FinishedPatients.isEmpty()) {
-			FinishedPatients.dequeue(p);
-			timestep += getTimeStep();
-		}
-		Utilization = AvgBusyTime /timestep ;
-	}*/
+	int GetAvgUtilization(int timestep) {
+		Utilization = (float)AvgBusyTime / (float)timestep ;
+		return Utilization * 100;
+	}
 
 	RemovablePriQueue<Car*>& GetOutCars() { return OutCars; }
 	priQueue<Car*>& GetBackCars() { return BackCars; }
@@ -611,9 +616,10 @@ public:
 		cout << "Simulation ends, output file created" << endl;
 	}
 
-	void OutputFile() {
+	void OutputFile(int timestep) {
 		ofstream Output("Output File.txt"); //open output file
 		Patient* p;
+		LinkedQueue<Patient*> temp1;
 
 		if (Output.is_open()) {
 			//print headers
@@ -623,6 +629,7 @@ public:
 			Output << setw(10) << "WT" << endl;
 			for (int i = 0; i < TotalNumRequests && !FinishedPatients.isEmpty(); i++) { // loop on finished patients and print the data
 				FinishedPatients.dequeue(p);
+				temp1.enqueue(p);
 				Output << std::setw(10) << p->getFinishTime();
 				Output << std::setw(10) << p->getPID();
 				Output << std::setw(10) << p->getRequestTime();
@@ -634,9 +641,9 @@ public:
 			Output << "Hospitals = " << NumHospitals << endl;
 			Output << "Cars: " << TotalNumNC + TotalNumSC;
 			Output << std::setw(6) << " [SCar: " << TotalNumSC << ", " << "NCar: " << TotalNumNC << "]" << endl;
-			Output << "Avg Wait Time = " << GetAvgWaitTime() << endl;
+			Output << "Avg Wait Time = " << GetAvgWaitTime(temp1) << endl;
 			Output << "Avg Busy Time = " << GetAvgBusyTime() << endl;
-			Output << "Avg Utilization = " << Utilization << endl;
+			Output << "Avg Utilization = " << GetAvgUtilization(timestep) << "%" << endl;
 		}
 		else {
 			cout << "Error opening file!" << endl;
@@ -663,7 +670,7 @@ public:
 			while (Hospitals[i]->getHasUnassignedEP())
 			{
 				// we get the number of the new hospital
-				int j = randomExcluding(1, NumHospitals, i + 1);
+				int j = randomExcluding(1, NumHospitals, i+1);
 
 				// move the ep
 				Patient* p; int severity;
@@ -746,7 +753,6 @@ public:
 			MoveFreeToOut(timestep);
 			CancelRequest(timestep);
 
-
 			ReassignEPs();
 
 
@@ -772,7 +778,7 @@ public:
 		if (mode == 2) {
 			SilentMode();
 		}
-		OutputFile();
+		OutputFile(timestep);
 	}
 
 	

@@ -90,7 +90,6 @@ public:
 		EPlist.enqueue(p, severity);
 		NumEPRequests++;
 	}
-
 	// Remove Request
 
 	bool RemoveSP(Patient*& p)
@@ -296,6 +295,7 @@ public:
 		AssignedCars.dequeue(C);
 		return true;
 	}
+
 
 	// A function that handles all current requests for the hospital
 	void HandlePatients()

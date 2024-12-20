@@ -8,6 +8,6 @@
 Patients: 6 [NP: 2, SP: 2, EP: 2]
 Hospitals = 2
 Cars: 9 [SCar: 4, NCar: 5]
-Avg Wait Time = 0
-Avg Busy Time = 0
-Avg Utilization = 0
+Avg Wait Time = 2
+Avg Busy Time = 4
+Avg Utilization = 30%
