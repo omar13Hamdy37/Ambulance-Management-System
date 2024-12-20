@@ -30,6 +30,9 @@ private:
 	int checkupTime;
 	bool failedCar;
 
+	static int Sspeed;
+	static int Nspeed;
+
 public:
 	// Constructor
 	Car(int ID, CarType t, float sp, int HID, int busy = 0,int checkup=0)
@@ -43,6 +46,9 @@ public:
 	void setAssignedPatient(Patient* patient) { assignedPatient = patient; status = CarStatus::Assigned; }
 	void PickPatient() { status = CarStatus::Loaded; }
 	void setCarFailed(bool b) { failedCar = b; }
+	static void setScarSpeed(int speed) { Sspeed = speed; }
+	static void setNcarSpeed(int speed) { Nspeed = speed; }
+
 
 	// Getters
 	int getHID() const { return HID; }
@@ -53,6 +59,9 @@ public:
 	Patient* getAssignedPatient() const { return assignedPatient; }
 	int getCheckupTime()const { return checkupTime; }
 	int getBusyTime() const { return busyTime; }
+
+	static int getScarSpeed() { return Sspeed; }
+	static int getNcarSpeed() { return Nspeed; }
 
 	bool getFailedCar() const { return failedCar; }
 
@@ -95,3 +104,6 @@ public:
 		busyTime += time;
 	}
 };
+
+int Car::Sspeed = 0;
+int Car::Nspeed = 0;

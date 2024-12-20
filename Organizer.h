@@ -234,7 +234,7 @@ public:
 			FinishedPatients.dequeue(p);
 			totalwaitingtime += p->getWaitingTime();
 		}
-		AvgWaitTime = totalwaitingtime / finishedp;
+		AvgWaitTime = totalwaitingtime /finishedp ;
 		return AvgWaitTime;
 	}
 	int GetAvgBusyTime() {
@@ -506,7 +506,7 @@ public:
 
 				// If patient is on their way to the hospital
 				if (Timestep > P->getAssignmentTime() + ceil(P->getHospitalDistance() / Car::getNcarSpeed()))
-					continue; //patient cannot cancel a request while in a car *waiting P only*
+					continue; //patient cannot cancel a request while in a car **waiting P only**
 
 				// Getting car that was assigned this patient
 				if (OutCars.removeItem(Car, pri, CarID))
@@ -775,5 +775,5 @@ public:
 		OutputFile();
 	}
 
-
+	
 };
