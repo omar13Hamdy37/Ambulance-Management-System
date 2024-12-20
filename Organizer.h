@@ -120,6 +120,7 @@ public:
 	{
 		float ScarSpeed, NcarSpeed;
 		int carfailprob;
+		int SCtime, NCtime;
 		int ScarNum, NcarNum, ReqNum, ReqTime,
 			PID, HID, PatientDistance, CancellationReqNum, CancelTime;
 		string PT;
@@ -145,6 +146,7 @@ public:
 			for (int j = 0; j < NumHospitals; j++)
 				file >> DistanceMatrix[i][j];
 		}
+		file >> SCtime >> NCtime;
 
 		for (int i = 0; i < NumHospitals; i++)
 		{
@@ -153,19 +155,20 @@ public:
 			TotalNumNC += NcarNum;
 			for (int j = 0; j < ScarNum; j++)
 			{
-				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
+				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1, SCtime);
 				Hospitals[i]->AddSCar(C);
 
 			}
 			for (int j = 0; j < NcarNum; j++)
 			{
-				Car* C = new Car(j + 1 + ScarNum, CarType::NC, NcarSpeed, i + 1);
+				Car* C = new Car(j + 1 + ScarNum, CarType::NC, NcarSpeed, i + 1, NCtime);
 				Hospitals[i]->AddNCar(C);
 			}
 			Hospitals[i]->setTotalNumNcars(NcarNum);
 			Hospitals[i]->setTotalNumScars(ScarNum);
 
 		}
+
 		//set min and max outcars failure probability
 		file >> carfailprob;
 		failprob = carfailprob;
@@ -206,6 +209,7 @@ public:
 
 		file.close();
 	}
+
 	//setters and getters for checkuplist
 	//void AddcarCheckupList(Car* c) {
 	//	CheckupList.enqueue(c);
@@ -790,7 +794,7 @@ public:
 
 		int timestep = 0;
 
-		while (GetTotalNumFinished() != (GetTotalNumReq() - GetTotalNumCanellation()))
+		while (GetTotalNumFinished() != (GetTotalNumReq()))
 		{
 			timestep++;
 			// Patient to be moved from the AllPa
