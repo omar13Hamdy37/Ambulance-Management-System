@@ -168,7 +168,7 @@ public:
 			Hospitals[i]->setTotalNumScars(ScarNum);
 
 		}
-			
+
 		//set min and max outcars failure probability
 		file >> carfailprob;
 		failprob = carfailprob;
@@ -209,6 +209,7 @@ public:
 
 		file.close();
 	}
+
 	//setters and getters for checkuplist
 	//void AddcarCheckupList(Car* c) {
 	//	CheckupList.enqueue(c);
@@ -300,7 +301,7 @@ public:
 		}
 		else
 		{
-			// If the "top" patient's requeset time is the ssame as this time step we move handle it.
+			// If the "top" patient's request time is the same as this time step we move handle it.
 			if (patient->getRequestTime() == time)
 			{
 				AllPatients.dequeue(patient);
@@ -758,10 +759,9 @@ public:
 				// move the ep
 				Patient* p; int severity;
 				Hospitals[i]->RemoveEP(p, severity);
-				Hospitals[j - 1]->AddEP(p, severity);
-
-				//if patient is not a null pointer
-				if (p) {
+				// if patient is not a null pointer
+				if (p)
+				{
 					Hospitals[j - 1]->AddEP(p, severity);
 				}
 
@@ -795,7 +795,7 @@ public:
 
 		int timestep = 0;
 
-		while (GetTotalNumFinished() != (GetTotalNumReq() - GetTotalNumCanellation()))
+		while (GetTotalNumFinished() != (GetTotalNumReq()))
 		{
 			timestep++;
 			// Patient to be moved from the AllPa
