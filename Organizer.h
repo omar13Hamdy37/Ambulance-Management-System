@@ -405,6 +405,11 @@ public:
 			if (!P)
 				break;
 
+			Hospital* H = Hospitals[P->getHID() - 1];
+
+			// If Patient is a normal patient remove it from NPWaitList
+			if (P->getType() == PatientType::NP)
+				H->GetNpWaitList()->removeItem(P, P->getPID());
 			// Setting the time patient was picked
 			P->setPickupTime(pri * -1);
 
@@ -513,7 +518,7 @@ public:
 		}
 
 	}
-	bool CancelRequest(int Timestep)
+	void CancelRequest(int Timestep)
 	{
 		Cancellation* CancelReq = nullptr;
 		Car* Car = nullptr;
@@ -550,6 +555,14 @@ public:
 			if (!P)
 			{
 
+				H->GetNpWaitList()->removeItem(P, CancelReq->PID);
+				// if patient didnt exist in waitlist remove the cancel request
+				if (!P)
+				{
+					delete CancelReq;
+					break;
+				}
+
 				CarID = P->getCarId();
 
 				// If patient arrived then no car assigned
@@ -558,7 +571,7 @@ public:
 				}
 
 				// If patient is on their way to the hospital
-				if (Timestep > P->getAssignmentTime() + P->getHospitalDistance() / H->getNCarspeed())
+				if (Timestep > P->getAssignmentTime() + ceil( P->getHospitalDistance() / H->getNCarspeed()))
 					continue; //patient cannot cancel a request while in a car ***waiting P only***
 
 				// Getting car that was assigned this patient
@@ -575,20 +588,9 @@ public:
 				}
 
 			}
-
-
-
-
-			if (CarID == -1) { // no car assigned
-				continue; // No car to handle
-			}
-
-
-
 		}
 		CancelReq = nullptr;
 		P = nullptr;
-		return true;
 	}
 	void FailAction() {
 		Car* tofail;
@@ -722,7 +724,7 @@ public:
 
 		int timestep = 0;
 
-		while (GetTotalNumFinished() != (GetTotalNumReq() - GetTotalNumCanellation()))
+		do 
 		{
 			timestep++;
 			// Patient to be moved from the AllPa
@@ -759,7 +761,9 @@ public:
 			MoveFreeToOut(timestep);
 
 
-			ReassignEPs();
+			//ReassignEPs();
+
+			CancelRequest(timestep);
 
 			// Reassigned patients will be handled in the next time step. To imitate real life.
 
@@ -778,7 +782,8 @@ public:
 				InteractiveMode(timestep);
 			}
 
-		}
+		} while (GetTotalNumFinished() != (GetTotalNumReq() - GetTotalNumCanellation()) || (!OutCars.isEmpty() || !BackCars.isEmpty()));
+
 		if (mode == 2) {
 			SilentMode();
 		}

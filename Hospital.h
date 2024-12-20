@@ -24,8 +24,8 @@ private:
 	LinkedQueue<Patient*> SPlist;
 	RemovableQueue<Patient*> NPlist;  // NP's have the ability to cancel.
 	priQueue<Patient*> EPlist;       // Sorting emergency patients using priQueue
-
-	//LinkedQueue<Patient*> NpWaitList;
+	
+	RemovableQueue<Patient*> NpWaitList;
 	LinkedQueue<Car*> Scars;
 	LinkedQueue<Car*> Ncars;
 
@@ -247,6 +247,9 @@ public:
 	LinkedQueue<Car*>* GetNCar() {
 		return &Ncars;
 	}
+	RemovableQueue<Patient*>* GetNpWaitList() {
+		return &NpWaitList;
+	}
 
 	int getNCarspeed() {
 		Car* C = nullptr;
@@ -338,6 +341,7 @@ public:
 			// We have the car. (if empty we wouldn't enter while loop)
 			RemoveNCar(c);
 			c->setAssignedPatient(p);
+			NpWaitList.enqueue(p);
 			AddAssignedCar(c);
 		}
 	}
