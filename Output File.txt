@@ -1,8 +1,10 @@
         FT       PID        QT        WT
+         9         3         1         4
         10         4         4         3
-        10         5         4         3
         11         1         1         5
-Patients: 5 [NP: 2, SP: 2, EP: 1]
+        16         5         4         3
+        22         2         1        10
+Patients: 5 [NP: 0, SP: 2, EP: 3]
 Hospitals = 2
 Cars: 7 [SCar: 3, NCar: 4]
 Avg Wait Time = 0

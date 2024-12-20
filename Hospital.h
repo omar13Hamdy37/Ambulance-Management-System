@@ -30,7 +30,6 @@ private:
 	LinkedQueue<Car*> Scars;
 	LinkedQueue<Car*> Ncars;
 
-	RemovableQueue<Patient*> NpWaitList;
 	LinkedQueue<Car*> AssignedCars;
 
 public:
@@ -90,10 +89,6 @@ public:
 	{
 		EPlist.enqueue(p, severity);
 		NumEPRequests++;
-	}
-	void AddNPWaitlist(Patient* p)
-	{
-		NpWaitList.enqueue(p);
 	}
 	// Remove Request
 
@@ -300,13 +295,7 @@ public:
 		AssignedCars.dequeue(C);
 		return true;
 	}
-	bool RemoveNpWait(Patient*& p, int pid)
-	{
-		if (NpWaitList.isEmpty())
-			return false;
 
-		NpWaitList.removeItem(p, pid);
-	}
 
 	// A function that handles all current requests for the hospital
 	void HandlePatients()

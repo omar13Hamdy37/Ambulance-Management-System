@@ -663,7 +663,7 @@ public:
 			while (Hospitals[i]->getHasUnassignedEP())
 			{
 				// we get the number of the new hospital
-				int j = randomExcluding(1, NumHospitals, i);
+				int j = randomExcluding(1, NumHospitals, i+1);
 
 				// move the ep
 				Patient* p; int severity;
