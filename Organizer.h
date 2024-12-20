@@ -133,6 +133,9 @@ public:
 		}
 
 		file >> NumHospitals >> ScarSpeed >> NCarSpeed;
+		// Setting The constant speed for all car types
+		Car::setScarSpeed(ScarSpeed);
+		Car::setNcarSpeed(NCarSpeed);
 
 		CreateHospitals(NumHospitals);
 
@@ -303,7 +306,6 @@ public:
 		}
 	}
 
-	// Function that moves all cars from out to back (once they reached their patients).
 	void MoveOutToBack(int Timestep)
 	{
 		Car* tomove = nullptr;
@@ -322,16 +324,21 @@ public:
 			if (!P)
 				break;
 
+			Hospital* H = Hospitals[P->getHID() - 1];
+
+			// If Patient is a normal patient remove it from NPWaitList once pickedup
+			if (P->getType() == PatientType::NP)
+				H->RemoveNpWait(P, P->getPID());
 			// Setting the time patient was picked
 			P->setPickupTime(pri * -1);
 
 			// Setting the wait time of patient
 			P->setWaitingTime(P->getPickupTime() - P->getAssignmentTime());
 
-			// Setting time patient will arrive to hospital
+			// Setting time patient will arrive to hospital 
 			P->setFinishTime(P->getPickupTime() + ceil(P->getHospitalDistance() / tomove->getSpeed()));
 
-			// += busy time to add time car traveled to patient
+			// += busy time to add time car traveled to patient 
 			tomove->updateBusyTime(P->getPickupTime() - P->getAssignmentTime());
 
 			// Take that out car and move it to back
@@ -345,9 +352,10 @@ public:
 		}
 	}
 
-	// loops on back cars list
-	//  handles if car is returning with patient .. or.. if car has failed and is returning
+
+
 	void MoveBackToFree(int Timestep) {
+
 		Car* tomove = nullptr;
 		Patient* P = nullptr;
 		int pri;
@@ -369,11 +377,15 @@ public:
 			{
 				P = tomove->getAssignedPatient();
 
-				tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
-				P->setCarId(-1); // -1: is not assigned a car
-				AddPatientFinishedList(P);
-				tomove->setAssignedPatient(nullptr);
-				tomove->setStatus(CarStatus::Ready);
+				// Patient can cancel his request -> no need to handle the patient 
+				if (P)
+				{
+					tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
+					P->setCarId(-1); // -1: is not assigned a car
+					AddPatientFinishedList(P);
+					tomove->setAssignedPatient(nullptr);
+					tomove->setStatus(CarStatus::Ready);
+				}
 
 				int hid = tomove->getHID();
 				Hospital* H = Hospitals[hid - 1];
@@ -438,7 +450,7 @@ public:
 			}
 		}
 	}
-	bool CancelRequest(int Timestep)
+	void CancelRequest(int Timestep)
 	{
 		Cancellation* CancelReq = nullptr;
 		Car* Car = nullptr;
@@ -474,6 +486,15 @@ public:
 			int CarID;
 			if (!P)
 			{
+
+				H->GetNpWaitList()->removeItem(P, CancelReq->PID);
+				// if patient didnt exist in waitlist remove the cancel request
+				if (!P)
+				{
+					delete CancelReq;
+					break;
+				}
+
 				CarID = P->getCarId();
 
 				// If patient arrived then no car assigned
@@ -482,8 +503,8 @@ public:
 				}
 
 				// If patient is on their way to the hospital
-				if (Timestep > P->getAssignmentTime() + P->getHospitalDistance() / H->getNCarSpeed())
-					continue; //patient cannot cancel a request while in a car ***waiting P only***
+				if (Timestep > P->getAssignmentTime() + ceil(P->getHospitalDistance() / Car::getNcarSpeed()))
+					continue; //patient cannot cancel a request while in a car **waiting P only**
 
 				// Getting car that was assigned this patient
 				if (OutCars.removeItem(Car, pri, CarID))
@@ -497,17 +518,12 @@ public:
 					NumOutCars--;
 					NumBackCars++;
 				}
-			}
 
-			if (CarID == -1) { // no car assigned
-				continue; // No car to handle
 			}
 		}
 		CancelReq = nullptr;
 		P = nullptr;
-		return true;
 	}
-
 	// A car has failed function
 	void FailAction(int timestep) {
 		Car* tofail;
@@ -612,13 +628,13 @@ public:
 			}
 
 			Output << "Patients: " << TotalNumRequests;
-			Output << std::setw(6) << "[NP: " << TotalNumNP << "," << "SP: " << TotalNumSP << "," << "EP: " << TotalNumEP << "]" << endl;
-			Output << "Hospitals= " << NumHospitals << endl;
+			Output << std::setw(6) << "[NP: " << TotalNumNP << ", " << "SP: " << TotalNumSP << ", " << "EP: " << TotalNumEP << "]" << endl;
+			Output << "Hospitals = " << NumHospitals << endl;
 			Output << "Cars: " << TotalNumNC + TotalNumSC;
-			Output << std::setw(6) << "[SCar: " << TotalNumSC << "," << "NCar: " << TotalNumNC << "]" << endl;
-			Output << "Avg Wait Time= " << GetAvgWaitTime() << endl;
-			Output << "Avg Busy Time= " << GetAvgBusyTime() << endl;
-			Output << "Avg Utilization= " << Utilization << endl;
+			Output << std::setw(6) << " [SCar: " << TotalNumSC << ", " << "NCar: " << TotalNumNC << "]" << endl;
+			Output << "Avg Wait Time = " << GetAvgWaitTime() << endl;
+			Output << "Avg Busy Time = " << GetAvgBusyTime() << endl;
+			Output << "Avg Utilization = " << Utilization << endl;
 		}
 		else {
 			cout << "Error opening file!" << endl;
@@ -680,12 +696,13 @@ public:
 	// Simulating the Ambulance Management System given a certain input file.
 	void Simulate(string sample_input)
 	{
+
 		LoadFile(sample_input);
 		int mode = ui.GetInput();
 
 		int timestep = 0;
 
-		while (GetTotalNumFinished() != (GetTotalNumReq()))
+		do
 		{
 			timestep++;
 			// Patient to be moved from the AllPa
@@ -702,10 +719,12 @@ public:
 				}
 				else if (patientType == PatientType::NP) {
 					PatientsHospital->AddNP(CurrentPatient);
+					PatientsHospital->AddNPWaitlist(CurrentPatient);
 				}
 				else if (patientType == PatientType::SP) {
 					PatientsHospital->AddSP(CurrentPatient);
 				}
+
 			}
 			// After loop finishes, all relevant patients have been added to their hospitals.
 			// CurrentPatient is now useless
@@ -715,19 +734,20 @@ public:
 			HandleHospitalPatients();
 
 			// The cars should start moving from free to back. (All hospitals , All cars)
-			//
-			// CancelRequest(timestep);
 			MoveCheckupToFree(timestep);
 			MoveBackToFree(timestep);
 			MoveOutToBack(timestep);
 			MoveFreeToOut(timestep);
+			CancelRequest(timestep);
+
 
 			ReassignEPs();
+
 
 			// Reassigned patients will be handled in the next time step. To imitate real life.
 
 			// uncomment later
-			//
+			// 
 			//int random_fail = randomExcluding(1, 100, -1);
 			//
 			//int OUTfailprob = getOUTfailprob();
@@ -735,14 +755,19 @@ public:
 			//	FailAction();
 			//}
 
+
 			if (mode == 1) { // if it's in interactive mode print all necessary data from the organizer class
 				//cout << "Random: " << random_fail << endl;
 				InteractiveMode(timestep);
 			}
-		}
+
+		} while (GetTotalNumFinished() != (GetTotalNumReq() - GetTotalNumCanellation()) || (!OutCars.isEmpty() || !BackCars.isEmpty()));
+
 		if (mode == 2) {
 			SilentMode();
 		}
 		OutputFile();
 	}
+
+	
 };

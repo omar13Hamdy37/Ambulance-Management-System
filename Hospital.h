@@ -26,7 +26,7 @@ private:
 	RemovableQueue<Patient*> NPlist;  // NP's have the ability to cancel.
 	priQueue<Patient*> EPlist;       // Sorting emergency patients using priQueue
 
-	//LinkedQueue<Patient*> NpWaitList;
+	RemovableQueue<Patient*> NpWaitList;
 	LinkedQueue<Car*> Scars;
 	LinkedQueue<Car*> Ncars;
 
@@ -125,6 +125,21 @@ public:
 		NumEPRequests--;
 		return EPlist.dequeue(p, severity);
 	}
+
+	// Adding and removing patients from wait list
+	void AddNPWaitlist(Patient* p)
+	{
+		NpWaitList.enqueue(p);
+	}
+
+	bool RemoveNpWait(Patient*& p, int pid)
+	{
+		if (NpWaitList.isEmpty())
+			return false;
+
+		NpWaitList.removeItem(p, pid);
+	}
+	
 	// functions to add a patient to the front of a queue
 	void AddToFrontSP(Patient* p) {
 		LinkedQueue<Patient*> temp;
@@ -244,6 +259,9 @@ public:
 	}
 	LinkedQueue<Car*>* GetNCar() {
 		return &Ncars;
+	}
+	RemovableQueue<Patient*>* GetNpWaitList() {
+		return &NpWaitList;
 	}
 
 	int getNCarSpeed() {
