@@ -1,12 +1,13 @@
         FT       PID        QT        WT
-         9         3         1         4
-        10         4         4         3
-        11         1         1         5
-        16         5         4         3
-        22         2         1        10
-Patients: 5 [NP: 0, SP: 2, EP: 3]
+         4         2         2         1
+         5         1         1         2
+         6         6         4         1
+         6         5         4         1
+         7         3         3         2
+        13         4         3         5
+Patients: 6 [NP: 2, SP: 2, EP: 2]
 Hospitals = 2
-Cars: 7 [SCar: 3, NCar: 4]
-Avg Wait Time = 0
-Avg Busy Time = 0
-Avg Utilization = 0
+Cars: 9 [SCar: 4, NCar: 5]
+Avg Wait Time = 2
+Avg Busy Time = 4
+Avg Utilization = 30%
