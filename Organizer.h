@@ -35,7 +35,7 @@ private:
 	LinkedQueue<Patient*> AllPatients;
 	LinkedQueue<Cancellation*> AllCancellations;
 	LinkedQueue<Patient*> FinishedPatients;
-	LinkedQueue<Car*>CheckupList;
+	priQueue<Car*> CheckupList;
 	RemovablePriQueue<Car*> OutCars; 
 	priQueue<Car*> BackCars;
 
@@ -207,10 +207,10 @@ public:
 		file.close();
 	}
 	//setters and getters for checkuplist
-	void AddcarCheckupList(Car* c) {
-		CheckupList.enqueue(c);
-		NumCheckupCars++;
-	}
+	//void AddcarCheckupList(Car* c) {
+	//	CheckupList.enqueue(c);
+	//	NumCheckupCars++;
+	//}
 	int getNumCheckupCars() {
 		return NumCheckupCars;
 	}
@@ -259,7 +259,7 @@ public:
 	RemovablePriQueue<Car*>& GetOutCars() { return OutCars; }
 	priQueue<Car*>& GetBackCars() { return BackCars; }
 	LinkedQueue<Patient*>& GetFinished() { return FinishedPatients; }
-	LinkedQueue<Car*>& GetCheckupList() { return CheckupList; }
+	priQueue<Car*>& GetCheckupList() { return CheckupList; }
 
 	//Destructor
 	~Organizer()
@@ -433,7 +433,8 @@ public:
 		}
 	}
 
-	// loops on back cars list
+	// loops on back cars list 
+	//  handles if car is returning with patient .. or.. if car has failed and is returning
 	void MoveBackToFree(int Timestep) {
 
 		Car* tomove = nullptr;
@@ -450,30 +451,44 @@ public:
 			// if car dequeued null then break
 			if (!BackCars.dequeue(tomove, pri))
 				break;
-			P = tomove->getAssignedPatient();
+
 			NumBackCars--;
-
-			tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
-			P->setCarId(-1); // -1: is not assigned a car
-			AddPatientFinishedList(P);
-			tomove->setAssignedPatient(nullptr);
-			tomove->setStatus(CarStatus::Ready);
-
-
-			int hid = tomove->getHID();
-			Hospital* H = Hospitals[hid - 1];
-			CarType Ctype = tomove->getType();
-			if (Ctype == CarType::NC)
+			// If the car has not failed
+			if (!tomove->getFailedCar())
 			{
-				H->AddNCar(tomove);
+				P = tomove->getAssignedPatient();
+
+
+
+				tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
+				P->setCarId(-1); // -1: is not assigned a car
+				AddPatientFinishedList(P);
+				tomove->setAssignedPatient(nullptr);
+				tomove->setStatus(CarStatus::Ready);
+
+
+				int hid = tomove->getHID();
+				Hospital* H = Hospitals[hid - 1];
+				CarType Ctype = tomove->getType();
+				if (Ctype == CarType::NC)
+				{
+					H->AddNCar(tomove);
+				}
+				else if (Ctype == CarType::SC)
+				{
+					H->AddSCar(tomove);
+				}
+				H = nullptr;
+				tomove = nullptr;
+				P = nullptr;
 			}
-			else if (Ctype == CarType::SC)
+			else
 			{
-				H->AddSCar(tomove);
+				// Car needs to be added to checkup list
+				CheckupList.enqueue(tomove, -(timestep + tomove->getcheckuptime()));
+				tomove->setStatus(CarStatus::Checkup);
+				NumCheckupCars++;
 			}
-			H = nullptr;
-			tomove = nullptr;
-			P = nullptr;
 		}
 	}
 	// Function that moves all the assigned cars from free to out (to go to their patients0
@@ -592,39 +607,88 @@ public:
 		CancelReq = nullptr;
 		P = nullptr;
 	}
-	void FailAction() {
+
+	// A car has failed function
+	void FailAction(int timestep) {
 		Car* tofail;
 		int pri;
+		// Dequeue a car to fail
 		if (OutCars.dequeue(tofail, pri))
 		{
+
 			NumOutCars--;
-			BackCars.enqueue(tofail, pri);
+			// The time of arrival to hospital
+			int time_arrival = 2 * timestep - tofail->getAssignedPatient()->getAssignmentTime();
+			// Move to back
+			BackCars.enqueue(tofail, -time_arrival);
+			tofail->setCarFailed(true);
 			NumBackCars++;
-			if (tofail->getStatus() == CarStatus::Assigned) {
-				Patient* movedpatient = tofail->getAssignedPatient();
-				Hospital* currentH = Hospitals[movedpatient->getHID() - 1];
-				PatientType type = movedpatient->getType();
-				if (type == PatientType::Ep) {
-					int severity = movedpatient->getSeverity();
-					currentH->AddtoFrontEp(movedpatient, severity);
-				}
-				else if (type == PatientType::NP) {
-					currentH->AddtoFrontNp(movedpatient);
-				}
-				else if (type == PatientType::SP) {
-					currentH->AddtoFrontNp(movedpatient);
-				}
+
+			// Patient should be at the top of its list.
+			Patient* movedpatient = tofail->getAssignedPatient();
+			// Car is back to the hospital so it is no longer assigned to a patient
+			tofail->setAssignedPatient(NULL);
+			Hospital* currentH = Hospitals[movedpatient->getHID() - 1];
+			PatientType type = movedpatient->getType();
+			if (type == PatientType::Ep) {
+				int severity = movedpatient->getSeverity();
+				currentH->AddtoFrontEp(movedpatient, severity);
 			}
-			BackCars.dequeue(tofail, pri);
-			NumBackCars--;
-			CheckupList.enqueue(tofail);
-			NumCheckupCars++;
-		}
-		else {
-			//To test
-			//cout << "No OUT cars" << endl;
+			else if (type == PatientType::NP) {
+				currentH->AddtoFrontNp(movedpatient);
+			}
+			else if (type == PatientType::SP) {
+				currentH->AddtoFrontNp(movedpatient);
+			}
+
 		}
 	}
+
+	// Should loop on checkup list
+	void MoveCheckupToFree(int Timestep)
+	{
+		Car* tomove = nullptr;
+		int pri;
+
+		// loop on all checkup cars with same timestep
+		while (CheckupList.peek(tomove, pri))
+		{
+			// Not time then break
+			if ((pri * -1) != Timestep)
+				break;
+
+			// if car dequeued null then break
+			if (!CheckupList.dequeue(tomove, pri))
+				break;
+
+			// Car has been checked so it is done
+			NumCheckupCars--;
+			tomove->setCarFailed(false);
+
+			// Car is now ready
+			tomove->setStatus(CarStatus::Ready);
+			int hid = tomove->getHID();
+
+			Hospital* H = Hospitals[hid - 1];
+
+			CarType Ctype = tomove->getType();
+
+			if (Ctype == CarType::NC)
+			{
+				H->AddNCar(tomove);
+			}
+			else if (Ctype == CarType::SC)
+			{
+				H->AddSCar(tomove);
+			}
+
+			H = nullptr;
+			tomove = nullptr;
+		}
+	}
+
+
+	
 
 	void InteractiveMode(int timestep) {
 
@@ -756,6 +820,7 @@ public:
 			HandleHospitalPatients();
 			
 			// The cars should start moving from free to back. (All hospitals , All cars)
+			MoveCheckupToFree(timestep);
 			MoveBackToFree(timestep);
 			MoveOutToBack(timestep);
 			MoveFreeToOut(timestep);

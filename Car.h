@@ -12,7 +12,7 @@ enum class CarStatus {
 	Ready,
 	Assigned,
 	Loaded,
-	Checked,
+	Checkup,
 };
 
 class Car
@@ -27,16 +27,21 @@ private:
 
 	int busyTime; // Total time car was in use.
 
+	int checkuptime;
+	bool failedCar;
+
 public:
 	// Constructor
 	Car(int ID, CarType t, float sp, int HID, int busy = 0)
-		: CarID(ID), type(t), speed(sp), status(CarStatus::Ready), assignedPatient(nullptr), busyTime(busy), HID(HID) {}
+		: CarID(ID), type(t), speed(sp), status(CarStatus::Ready), assignedPatient(nullptr), busyTime(busy), HID(HID), failedCar(false) {}
 
 	// Setters
 
 	void setStatus(CarStatus st) { status = st; }
 	void setAssignedPatient(Patient* patient) { assignedPatient = patient; status = CarStatus::Assigned; }
 	void PickPatient() { status = CarStatus::Loaded; }
+	void setCarFailed(bool b) { failedCar = b; }
+
 
 	// Getters
 	int getHID() const { return HID; }
@@ -45,7 +50,11 @@ public:
 	float getSpeed() const { return speed; }
 	CarStatus getStatus() const { return status; }
 	Patient* getAssignedPatient() const { return assignedPatient; }
+	int getcheckuptime()const { return checkuptime; }
 	int getBusyTime() const { return busyTime; }
+
+	bool getFailedCar() const { return failedCar; }
+
 
 	// Operator overloading
 
