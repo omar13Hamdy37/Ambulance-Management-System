@@ -22,14 +22,14 @@ private:
 	float hospitalDistance; // Distance between patient and nearest hospital
 
 	//Car* AssignedCar;
-	int Carid; //id of assigned car.  -1 if not assigned aa c
+	int CarID; //id of assigned car.  -1 if not assigned aa c
 	PatientType type; // NP or SP or EP
 
 	int severity; // -1 if not an EP
 
 public:
 	// Constructor
-	Patient(PatientType type, int rT, int PID, int HID, int HD, int severity = -1) : PID(PID), requestTime(rT), HID(HID), hospitalDistance(HD), type(type), severity(severity), Carid(-1)
+	Patient(PatientType type, int rT, int PID, int HID, int HD, int severity = -1) : PID(PID), requestTime(rT), HID(HID), hospitalDistance(HD), type(type), severity(severity), CarID(-1)
 	{
 	}
 
@@ -44,7 +44,7 @@ public:
 	void setWaitingTime(int time) { waitingTime = time; }
 	void setHID(int id) { HID = id; }
 	void setHospitalDistance(float distance) { hospitalDistance = distance; }
-	void setCarId(int id) { Carid = id; }
+	void setCarId(int id) { CarID = id; }
 	// Utility functions
 
 	void calculateWaitingTime() { waitingTime = pickupTime - requestTime; }
@@ -60,7 +60,7 @@ public:
 	int getSeverity() const { return severity; }
 	float getHospitalDistance() const { return hospitalDistance; }
 	PatientType getType() const { return type; }
-	int getCarId() const { return Carid; }
+	int getCarId() const { return CarID; }
 
 	// Operator overloading
 	//

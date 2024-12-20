@@ -8,8 +8,6 @@
 #include "iostream"
 using namespace std;
 
-
-
 class UI {
 public:
 
@@ -33,7 +31,6 @@ public:
 			currentHospital->GetNPlist()->printPointers();
 			cout << "Free Cars: " << currentHospital->getAvailableNumScars() << " SCars, " << currentHospital->getAvailableNumNCars() << " NCars\n";
 
-
 			cout << "=========== HOSPITAL #" << i + 1 << " data end ===========" << endl;
 			cout << "------------------------------------------------------" << endl;
 			cout << totalNumOutC << "==> Out cars: ";
@@ -51,12 +48,8 @@ public:
 			Checkuplist->printPointers();
 			cout << "Press any key to display next hospital." << endl;
 
-
-
 			cin.get();
 		}
-
-
 	}
 
 	int GetInput() {
@@ -77,5 +70,4 @@ public:
 
 		return mode;
 	}
-
 };

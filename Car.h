@@ -27,7 +27,7 @@ private:
 
 	int busyTime; // Total time car was in use.
 
-	int checkuptime;
+	int checkupTime;
 	bool failedCar;
 
 public:
@@ -42,7 +42,6 @@ public:
 	void PickPatient() { status = CarStatus::Loaded; }
 	void setCarFailed(bool b) { failedCar = b; }
 
-
 	// Getters
 	int getHID() const { return HID; }
 	int getCarID() const { return CarID; }
@@ -50,11 +49,10 @@ public:
 	float getSpeed() const { return speed; }
 	CarStatus getStatus() const { return status; }
 	Patient* getAssignedPatient() const { return assignedPatient; }
-	int getcheckuptime()const { return checkuptime; }
+	int getCheckupTime()const { return checkupTime; }
 	int getBusyTime() const { return busyTime; }
 
 	bool getFailedCar() const { return failedCar; }
-
 
 	// Operator overloading
 
@@ -80,25 +78,18 @@ public:
 
 	// Utility functions
 
-	// Phase 2 code
-	// ok bos awalan ama patient yeba assigned yeba sa3tha assignment time bt3 patient updated
-	// patient picked up.. update pickup time of patient -- update busy time bt3 el ragel -- change status
-	//  patient dropped up - update finish time -- shoof change status
-	// shoof hat calc busy time ezay law had canclled
-	//
 	int calculatePatientFinishTime()
 	{
-	    return assignedPatient->getPickupTime() + assignedPatient->getHospitalDistance() / speed;
+		return assignedPatient->getPickupTime() + assignedPatient->getHospitalDistance() / speed;
 	}
-	
+
 	int calculatePatientPickupTime()
 	{
-	    return assignedPatient->getAssignmentTime() + assignedPatient->getHospitalDistance() / speed;
+		return assignedPatient->getAssignmentTime() + assignedPatient->getHospitalDistance() / speed;
 	}
-	
+
 	void updateBusyTime(int time)
 	{
-	
-	    busyTime +=  time; 
+		busyTime += time;
 	}
 };

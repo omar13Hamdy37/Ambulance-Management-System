@@ -9,6 +9,7 @@
 class Hospital
 {
 private:
+
 	// Normal data members
 	int HID;
 
@@ -124,8 +125,8 @@ public:
 		NumEPRequests--;
 		return EPlist.dequeue(p, severity);
 	}
-	// functions to add a patient to the front of a queue 
-	void AddtoFrontSp(Patient* p) {
+	// functions to add a patient to the front of a queue
+	void AddToFrontSP(Patient* p) {
 		LinkedQueue<Patient*> temp;
 		Patient* tempP;
 		while (!SPlist.isEmpty()) {
@@ -139,9 +140,8 @@ public:
 			SPlist.enqueue(tempP);
 			temp.dequeue(tempP);
 		}
-
 	}
-	void AddtoFrontNp(Patient* p) {
+	void AddToFrontNP(Patient* p) {
 		LinkedQueue<Patient*> temp;
 		Patient* tempP;
 		while (!NPlist.isEmpty()) {
@@ -155,9 +155,8 @@ public:
 			NPlist.enqueue(tempP);
 			temp.dequeue(tempP);
 		}
-
 	}
-	void AddtoFrontEp(Patient* p, int severity) {
+	void AddToFrontEP(Patient* p, int severity) {
 		priQueue<Patient*> temp;
 		Patient* tempP;
 		int sev;
@@ -172,7 +171,6 @@ public:
 			EPlist.enqueue(tempP, sev);
 			temp.dequeue(tempP, sev);
 		}
-
 	}
 	// Setters
 	void setTotalNumScars(int totalScars) {
@@ -248,12 +246,12 @@ public:
 		return &Ncars;
 	}
 
-	int getNCarspeed() {
+	int getNCarSpeed() {
 		Car* C = nullptr;
 		Ncars.peek(C);
 		return C->getSpeed();
 	}
-	int getSCarspeed() {
+	int getSCarSpeed() {
 		Car* C = nullptr;
 		Scars.peek(C);
 		return C->getSpeed();
@@ -280,6 +278,7 @@ public:
 		AssignedCars.dequeue(C);
 		return true;
 	}
+
 	// A function that handles all current requests for the hospital
 	void HandlePatients()
 	{
@@ -341,5 +340,4 @@ public:
 			AddAssignedCar(c);
 		}
 	}
-
 };
