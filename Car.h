@@ -18,9 +18,6 @@ enum class CarStatus {
 class Car
 {
 private:
-	// If Ncars or Scars list in the hospital is empty we should still be able to access Ncar and Scar speed
-	static int Sspeed;
-	static int Nspeed;
 	int CarID;
 	CarType type;
 	float speed;
@@ -30,13 +27,15 @@ private:
 
 	int busyTime; // Total time car was in use.
 
-	int checkuptime;
+	int checkupTime;
 	bool failedCar;
 
 public:
 	// Constructor
-	Car(int ID, CarType t, float sp, int HID, int busy = 0)
-		: CarID(ID), type(t), speed(sp), status(CarStatus::Ready), assignedPatient(nullptr), busyTime(busy), HID(HID), failedCar(false) {}
+	Car(int ID, CarType t, float sp, int HID, int busy = 0,int checkup=0)
+		: CarID(ID), type(t), speed(sp), status(CarStatus::Ready), assignedPatient(nullptr), busyTime(busy), HID(HID),checkupTime(checkup), failedCar(false) {}
+
+
 
 	// Setters
 
@@ -44,9 +43,6 @@ public:
 	void setAssignedPatient(Patient* patient) { assignedPatient = patient; status = CarStatus::Assigned; }
 	void PickPatient() { status = CarStatus::Loaded; }
 	void setCarFailed(bool b) { failedCar = b; }
-	static void setScarSpeed(int speed) { Sspeed = speed; }
-	static void setNcarSpeed(int speed) { Nspeed = speed; }
-
 
 	// Getters
 	int getHID() const { return HID; }
@@ -55,12 +51,10 @@ public:
 	float getSpeed() const { return speed; }
 	CarStatus getStatus() const { return status; }
 	Patient* getAssignedPatient() const { return assignedPatient; }
-	int getcheckuptime()const { return checkuptime; }
+	int getCheckupTime()const { return checkupTime; }
 	int getBusyTime() const { return busyTime; }
 
 	bool getFailedCar() const { return failedCar; }
-	static int getScarSpeed() { return Sspeed; }
-	static int getNcarSpeed() { return Nspeed; }
 
 	// Operator overloading
 
@@ -86,27 +80,18 @@ public:
 
 	// Utility functions
 
-	// Phase 2 code
-	// ok bos awalan ama patient yeba assigned yeba sa3tha assignment time bt3 patient updated
-	// patient picked up.. update pickup time of patient -- update busy time bt3 el ragel -- change status
-	//  patient dropped up - update finish time -- shoof change status
-	// shoof hat calc busy time ezay law had canclled
-	//
 	int calculatePatientFinishTime()
 	{
-	    return assignedPatient->getPickupTime() + assignedPatient->getHospitalDistance() / speed;
+		return assignedPatient->getPickupTime() + assignedPatient->getHospitalDistance() / speed;
 	}
-	
+
 	int calculatePatientPickupTime()
 	{
-	    return assignedPatient->getAssignmentTime() + assignedPatient->getHospitalDistance() / speed;
+		return assignedPatient->getAssignmentTime() + assignedPatient->getHospitalDistance() / speed;
 	}
-	
+
 	void updateBusyTime(int time)
 	{
-	
-	    busyTime +=  time; 
+		busyTime += time;
 	}
 };
-int Car::Sspeed = 0; 
-int Car::Nspeed = 0;

@@ -36,15 +36,14 @@ private:
 	LinkedQueue<Cancellation*> AllCancellations;
 	LinkedQueue<Patient*> FinishedPatients;
 	priQueue<Car*> CheckupList;
-	RemovablePriQueue<Car*> OutCars; 
+	RemovablePriQueue<Car*> OutCars;
 	priQueue<Car*> BackCars;
-
-	int NumHospitals; //  Number of hospitals
 
 	// Other members
 
-	Hospital** Hospitals; // Pointer to a dynamic array of hospitals.
 	int** DistanceMatrix;
+	Hospital** Hospitals; // Pointer to a dynamic array of hospitals.
+	int NumHospitals; //  Number of hospitals
 	int NumOutCars, NumBackCars;
 	int NumFinishedPatients;
 	int NumCheckupCars;
@@ -54,13 +53,11 @@ private:
 	int TotalNumEP, TotalNumSP, TotalNumNP;
 
 	int TotalNumSC, TotalNumNC;
-	int timestep;
 
-	// Phase 2 data members
 	int AvgWaitTime;
 	int AvgBusyTime;
 	int Utilization;
-	int failprob;
+	int FailProb;
 
 	// UI member
 	UI ui;
@@ -70,6 +67,8 @@ public:
 	Organizer() : NumOutCars(0), NumBackCars(0), NumFinishedPatients(0), TotalNumRequests(0), TotalNumEP(0), TotalNumSP(0), TotalNumNP(0), TotalNumNC(0), TotalNumSC(0) {}
 
 	// Utility functions
+
+	// Adds patient to the system
 	void AddPatient(PatientType type, int rT, int PID, int HID, int HD, int severity = -1)
 	{
 		// Creating the patient
@@ -93,22 +92,21 @@ public:
 		return Hospitals[HID - 1];
 	}
 
+	// Adds cancellation to the system
 	void AddCancellation(int PID, int CancellationTime, int HID)
 	{
 		Cancellation* c = new Cancellation(PID, CancellationTime, HID);
 		AllCancellations.enqueue(c);
 	}
 
+	// Adds patient to finished lsit
 	void AddPatientFinishedList(Patient* p)
 	{
 		FinishedPatients.enqueue(p);
 		NumFinishedPatients++;
 	}
 
-	int getTimeStep()const { return timestep; }
-	int setTimeStep(int t) { timestep = t; }
-
-	// Omar: Function to create the hospitals given the num of hospials.
+	// Function to create the hospitals given the num of hospitals.
 	void CreateHospitals(int num)
 	{
 		Hospitals = new Hospital * [num];
@@ -116,11 +114,13 @@ public:
 			Hospitals[i - 1] = new Hospital(i);  //set id to i
 	}
 
-	void LoadFile(string fileName)
+	// Loading the file
+	bool  LoadFile(string fileName)
 	{
-		float ScarSpeed, NcarSpeed;
-		int carfailprob;
-		int ScarNum, NcarNum, ReqNum, ReqTime,
+		float ScarSpeed, NCarSpeed;
+		int CarFailProb;
+		int SCtime, NCtime;
+		int ScarNum, NCarNum, ReqNum, ReqTime,
 			PID, HID, PatientDistance, CancellationReqNum, CancelTime;
 		string PT;
 		PatientType PTenum;
@@ -129,13 +129,13 @@ public:
 
 		if (!file.is_open()) {
 			cout << "Error opening file: " << fileName << endl;
-			return;
+			return false;
 		}
 
-		file >> NumHospitals >> ScarSpeed >> NcarSpeed;
+		file >> NumHospitals >> ScarSpeed >> NCarSpeed;
 		// Setting The constant speed for all car types
 		Car::setScarSpeed(ScarSpeed);
-		Car::setNcarSpeed(NcarSpeed);
+		Car::setNcarSpeed(NCarSpeed);
 
 		CreateHospitals(NumHospitals);
 
@@ -148,30 +148,30 @@ public:
 			for (int j = 0; j < NumHospitals; j++)
 				file >> DistanceMatrix[i][j];
 		}
+		file >> SCtime >> NCtime;
 
 		for (int i = 0; i < NumHospitals; i++)
 		{
-			file >> ScarNum >> NcarNum;
+			file >> ScarNum >> NCarNum;
 			TotalNumSC += ScarNum;
-			TotalNumNC += NcarNum;
+			TotalNumNC += NCarNum;
 			for (int j = 0; j < ScarNum; j++)
 			{
-				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
+				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1, SCtime);
 				Hospitals[i]->AddSCar(C);
-
 			}
-			for (int j = 0; j < NcarNum; j++)
+			for (int j = 0; j < NCarNum; j++)
 			{
-				Car* C = new Car(j + 1 + ScarNum, CarType::NC, NcarSpeed, i + 1);
+				Car* C = new Car(j + 1 + ScarNum, CarType::NC, NCarSpeed, i + 1, NCtime);
 				Hospitals[i]->AddNCar(C);
 			}
-			Hospitals[i]->setTotalNumNcars(NcarNum);
+			Hospitals[i]->setTotalNumNcars(NCarNum);
 			Hospitals[i]->setTotalNumScars(ScarNum);
-
 		}
+
 		//set min and max outcars failure probability
-		file >> carfailprob;
-		failprob = carfailprob;
+		file >> CarFailProb;
+		FailProb = CarFailProb;
 
 		file >> ReqNum;
 		TotalNumRequests = ReqNum;
@@ -208,14 +208,7 @@ public:
 		}
 
 		file.close();
-	}
-	//setters and getters for checkuplist
-	//void AddcarCheckupList(Car* c) {
-	//	CheckupList.enqueue(c);
-	//	NumCheckupCars++;
-	//}
-	int getNumCheckupCars() {
-		return NumCheckupCars;
+		return true;
 	}
 
 	// Setters
@@ -224,19 +217,24 @@ public:
 	void SetNumCancellations(int n) { NumCancellations = n; }
 
 	// Getters
-	int getOUTfailprob() { return failprob; }
+	int getOUTfailprob() { return FailProb; }
 	int GetTotalNumReq() { return TotalNumRequests; }
 	int GetTotalNumCanellation() { return NumCancellations; }
 	int GetTotalNumFinished() { return NumFinishedPatients; }
 	int GetNumHospitals() { return NumHospitals; }
+	int getNumCheckupCars() {
+		return NumCheckupCars;
+	}
+
 	int GetAvgWaitTime() {
 		Patient* p;
 		int totalwaitingtime = 0;
+		int finishedp = GetTotalNumFinished();
 		while (!FinishedPatients.isEmpty()) {
 			FinishedPatients.dequeue(p);
 			totalwaitingtime += p->getWaitingTime();
 		}
-		AvgWaitTime = totalwaitingtime / NumFinishedPatients;
+		AvgWaitTime = totalwaitingtime / finishedp;
 		return AvgWaitTime;
 	}
 	int GetAvgBusyTime() {
@@ -299,7 +297,7 @@ public:
 		}
 		else
 		{
-			// If the "top" patient's requeset time is the ssame as this time step we move handle it.
+			// If the "top" patient's request time is the same as this time step we move handle it.
 			if (patient->getRequestTime() == time)
 			{
 				AllPatients.dequeue(patient);
@@ -310,86 +308,6 @@ public:
 		}
 	}
 
-	// Given the type of patient, for all hospitals, a patient is removed from hospital list and added to patient finished list.
-	void HandleHospital(PatientType type) {
-		if (type == PatientType::SP) {
-			Patient* RemovedPatient;
-			for (int i = 0; i < NumHospitals; i++) {
-				if (Hospitals[i]->RemoveSP(RemovedPatient))
-				{
-					//Car* assignedCar = Hospitals[i]->(assignedCar);
-					//int assignmentTime = getTimeStep(); // Assuming this is the current time
-
-					//// Calculate Pickup Time (PT)
-					//int pickupTime = assignmentTime + (DistanceMatrix[RemovedPatient->getHID() - 1][RemovedPatient->getHID()] / assignedCar->getSpeed());
-
-					//// Calculate Finish Time (FT)
-					//int finishTime = pickupTime + (DistanceMatrix[RemovedPatient->getHID() - 1][RemovedPatient->getHID()] / assignedCar->getSpeed());
-
-					//// Calculate Patient Waiting Time (WT)
-					//int waitingTime = pickupTime - RemovedPatient->getRequestTime();
-					//RemovedPatient->setWaitingTime(waitingTime);
-					//RemovedPatient->setFinishTime(finishTime);
-
-
-					AddPatientFinishedList(RemovedPatient);
-				}
-			}
-		}
-		else if (type == PatientType::Ep) {
-			Patient* RemovedPatient;
-			int severity;
-			for (int i = 0; i < NumHospitals; i++) {
-				if (Hospitals[i]->RemoveEP(RemovedPatient, severity))
-				{
-					AddPatientFinishedList(RemovedPatient);
-				}
-			}
-		}
-		else if (type == PatientType::NP) {
-			Patient* RemovedPatient;
-			for (int i = 0; i < NumHospitals; i++) {
-				if (Hospitals[i]->RemoveNP(RemovedPatient))
-				{
-					AddPatientFinishedList(RemovedPatient);
-				}
-			}
-		}
-	}
-
-	// Handles the transferring of cars from hospital to out.
-	void HandleCars(CarType type) {
-		// Checks the type of the car
-
-		if (type == CarType::SC) {
-			Car* movedcar;
-			// For each hospital
-			for (int i = 0; i < NumHospitals; i++) {
-				// If I can remove a car i will do so and enqueue it.
-				if (Hospitals[i]->RemoveSCar(movedcar))
-				{
-					int pri = 1;
-					OutCars.enqueue(movedcar, pri);
-					NumOutCars++;
-				}
-			}
-		}
-		else if (type == CarType::NC) {
-			Car* movedcar;
-
-			for (int i = 0; i < NumHospitals; i++) {
-
-				if (Hospitals[i]->RemoveNCar(movedcar))
-				{
-					int pri = 1;
-					OutCars.enqueue(movedcar, pri);
-					NumOutCars++;
-				}
-			}
-		}
-	}
-
-	// Function that moves all cars from out to back (once they reached their patients).
 	void MoveOutToBack(int Timestep)
 	{
 		Car* tomove = nullptr;
@@ -397,7 +315,7 @@ public:
 		int  pri;
 
 		// We will loop until all cars of the current time steps move to back
-		
+
 		while (OutCars.peek(tomove, pri)) // pri = (-1) * picktime
 		{
 			// Checking if car's arrival time is this time step
@@ -436,8 +354,8 @@ public:
 		}
 	}
 
-	// loops on back cars list 
-	//  handles if car is returning with patient .. or.. if car has failed and is returning
+
+
 	void MoveBackToFree(int Timestep) {
 
 		Car* tomove = nullptr;
@@ -489,7 +407,7 @@ public:
 			else
 			{
 				// Car needs to be added to checkup list
-				CheckupList.enqueue(tomove, -(timestep + tomove->getcheckuptime()));
+				CheckupList.enqueue(tomove, -(Timestep + tomove->getCheckupTime()));
 				tomove->setStatus(CarStatus::Checkup);
 				NumCheckupCars++;
 			}
@@ -499,7 +417,6 @@ public:
 	// Does so for all hospitals
 	void MoveFreeToOut(int Timestep)
 	{
-		
 		Patient* AssignedP = nullptr;
 		Car* AssignedC = nullptr;
 		int pri;
@@ -532,10 +449,8 @@ public:
 				// enqueue car to OutCars
 				OutCars.enqueue(AssignedC, pri);
 				NumOutCars++;
-
 			}
 		}
-
 	}
 	void CancelRequest(int Timestep)
 	{
@@ -590,8 +505,8 @@ public:
 				}
 
 				// If patient is on their way to the hospital
-				if (Timestep > P->getAssignmentTime() + ceil( P->getHospitalDistance() / Car::getNcarSpeed()))
-					continue; //patient cannot cancel a request while in a car ***waiting P only***
+				if (Timestep > P->getAssignmentTime() + ceil(P->getHospitalDistance() / Car::getNcarSpeed()))
+					continue; //patient cannot cancel a request while in a car *waiting P only*
 
 				// Getting car that was assigned this patient
 				if (OutCars.removeItem(Car, pri, CarID))
@@ -611,7 +526,6 @@ public:
 		CancelReq = nullptr;
 		P = nullptr;
 	}
-
 	// A car has failed function
 	void FailAction(int timestep) {
 		Car* tofail;
@@ -619,7 +533,6 @@ public:
 		// Dequeue a car to fail
 		if (OutCars.dequeue(tofail, pri))
 		{
-
 			NumOutCars--;
 			// The time of arrival to hospital
 			int time_arrival = 2 * timestep - tofail->getAssignedPatient()->getAssignmentTime();
@@ -636,15 +549,14 @@ public:
 			PatientType type = movedpatient->getType();
 			if (type == PatientType::Ep) {
 				int severity = movedpatient->getSeverity();
-				currentH->AddtoFrontEp(movedpatient, severity);
+				currentH->AddToFrontEP(movedpatient, severity);
 			}
 			else if (type == PatientType::NP) {
-				currentH->AddtoFrontNp(movedpatient);
+				currentH->AddToFrontNP(movedpatient);
 			}
 			else if (type == PatientType::SP) {
-				currentH->AddtoFrontNp(movedpatient);
+				currentH->AddToFrontNP(movedpatient);
 			}
-
 		}
 	}
 
@@ -691,13 +603,8 @@ public:
 		}
 	}
 
-
-	
-
 	void InteractiveMode(int timestep) {
-
 		ui.PrintOutput(timestep, Hospitals, &OutCars, &BackCars, &FinishedPatients, &CheckupList, NumFinishedPatients, NumOutCars, NumBackCars, NumHospitals, NumCheckupCars);
-
 	}
 	void SilentMode() {
 		cout << "Silent mode, simulation starts..." << endl;
@@ -723,18 +630,19 @@ public:
 			}
 
 			Output << "Patients: " << TotalNumRequests;
-			Output << std::setw(6) << "[NP: " << TotalNumNP << "," << "SP: " << TotalNumSP << "," << "EP: " << TotalNumEP << "]" << endl;
-			Output << "Hospitals= " << NumHospitals << endl;
+			Output << std::setw(6) << "[NP: " << TotalNumNP << ", " << "SP: " << TotalNumSP << ", " << "EP: " << TotalNumEP << "]" << endl;
+			Output << "Hospitals = " << NumHospitals << endl;
 			Output << "Cars: " << TotalNumNC + TotalNumSC;
-			Output << std::setw(6) << "[SCar: " << TotalNumSC << "," << "NCar: " << TotalNumNC << "]" << endl;
-			Output << "Avg Wait Time= " << GetAvgWaitTime() << endl;
-			Output << "Avg Busy Time= " << GetAvgBusyTime() << endl;
-			Output << "Avg Utilization= " << Utilization << endl;
+			Output << std::setw(6) << " [SCar: " << TotalNumSC << ", " << "NCar: " << TotalNumNC << "]" << endl;
+			Output << "Avg Wait Time = " << GetAvgWaitTime() << endl;
+			Output << "Avg Busy Time = " << GetAvgBusyTime() << endl;
+			Output << "Avg Utilization = " << Utilization << endl;
 		}
 		else {
 			cout << "Error opening file!" << endl;
 		}
 	}
+
 	// A function that calls all hospitals to handle all requests at the current timestep
 	void HandleHospitalPatients()
 	{
@@ -760,10 +668,14 @@ public:
 				// move the ep
 				Patient* p; int severity;
 				Hospitals[i]->RemoveEP(p, severity);
-				Hospitals[j]->AddEP(p, severity);
+				// if patient is not a null pointer
+				if (p)
+				{
+					Hospitals[j - 1]->AddEP(p, severity);
+				}
 
 				// Update the "has unassigned ep" bool of the hospital after moving
-				Hospitals[i]->setHasUnassignedEP(Hospitals[i]->getEPlistEmpty());
+				Hospitals[i]->setHasUnassignedEP(!(Hospitals[i]->getEPlistEmpty()));
 			}
 		}
 	}
@@ -786,13 +698,17 @@ public:
 	// Simulating the Ambulance Management System given a certain input file.
 	void Simulate(string sample_input)
 	{
-		
-		LoadFile(sample_input);
+		// If error opening file
+		if (!LoadFile(sample_input))
+		{
+			return;
+		}
+
 		int mode = ui.GetInput();
 
 		int timestep = 0;
 
-		do 
+		do
 		{
 			timestep++;
 			// Patient to be moved from the AllPa
@@ -822,7 +738,7 @@ public:
 
 			// All hospitals should now check their requests and handle as much as possible
 			HandleHospitalPatients();
-			
+
 			// The cars should start moving from free to back. (All hospitals , All cars)
 			MoveCheckupToFree(timestep);
 			MoveBackToFree(timestep);
@@ -857,8 +773,7 @@ public:
 			SilentMode();
 		}
 		OutputFile();
-	
-		
 	}
+
 
 };

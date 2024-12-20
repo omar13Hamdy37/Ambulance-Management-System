@@ -8,8 +8,6 @@
 #include "iostream"
 using namespace std;
 
-
-
 class UI {
 public:
 
@@ -17,7 +15,6 @@ public:
 	{
 		// Cin get here so that after entering the mode.. there is a pause.
 
-		cin.get();
 		cout << "Current Timestep: " << timestep << endl;
 
 		for (int i = 0; i < numHospitals; i++) {
@@ -32,7 +29,6 @@ public:
 			cout << currentHospital->getNumNPRequests() << " NP requests: ";
 			currentHospital->GetNPlist()->printPointers();
 			cout << "Free Cars: " << currentHospital->getAvailableNumScars() << " SCars, " << currentHospital->getAvailableNumNCars() << " NCars\n";
-
 
 			cout << "=========== HOSPITAL #" << i + 1 << " data end ===========" << endl;
 			cout << "------------------------------------------------------" << endl;
@@ -51,12 +47,7 @@ public:
 			Checkuplist->printPointers();
 			cout << "Press any key to display next hospital." << endl;
 
-
-
-			cin.get();
 		}
-
-
 	}
 
 	int GetInput() {
@@ -77,5 +68,4 @@ public:
 
 		return mode;
 	}
-
 };
