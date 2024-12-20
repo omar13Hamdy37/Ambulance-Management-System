@@ -228,11 +228,12 @@ public:
 	int GetAvgWaitTime() {
 		Patient* p;
 		int totalwaitingtime = 0;
+		int finishedp = GetTotalNumFinished();
 		while (!FinishedPatients.isEmpty()) {
 			FinishedPatients.dequeue(p);
 			totalwaitingtime += p->getWaitingTime();
 		}
-		AvgWaitTime = totalwaitingtime / NumFinishedPatients;
+		AvgWaitTime = totalwaitingtime /finishedp ;
 		return AvgWaitTime;
 	}
 	int GetAvgBusyTime() {

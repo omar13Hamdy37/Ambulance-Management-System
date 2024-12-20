@@ -35,8 +35,10 @@ private:
 
 public:
 	// Constructor
-	Car(int ID, CarType t, float sp, int HID, int busy = 0)
-		: CarID(ID), type(t), speed(sp), status(CarStatus::Ready), assignedPatient(nullptr), busyTime(busy), HID(HID), failedCar(false) {}
+	Car(int ID, CarType t, float sp, int HID, int busy = 0,int checkup=0)
+		: CarID(ID), type(t), speed(sp), status(CarStatus::Ready), assignedPatient(nullptr), busyTime(busy), HID(HID),checkupTime(checkup), failedCar(false) {}
+
+
 
 	// Setters
 
