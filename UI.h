@@ -13,7 +13,7 @@ using namespace std;
 class UI {
 public:
 
-	void PrintOutput(int timestep, Hospital** Hospitals, RemovablePriQueue<Car*>* OutCars, priQueue<Car*>* BackCars, LinkedQueue<Patient*>* FinishedPatients, LinkedQueue<Car*>* Checkuplist, int totalNumFinishedP, int totalNumOutC, int totalNumBackC, int numHospitals, int NumCheckupCars)
+	void PrintOutput(int timestep, Hospital** Hospitals, RemovablePriQueue<Car*>* OutCars, priQueue<Car*>* BackCars, LinkedQueue<Patient*>* FinishedPatients, priQueue<Car*>* Checkuplist, int totalNumFinishedP, int totalNumOutC, int totalNumBackC, int numHospitals, int NumCheckupCars)
 	{
 		// Cin get here so that after entering the mode.. there is a pause.
 
