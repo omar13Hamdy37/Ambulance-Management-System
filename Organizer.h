@@ -296,7 +296,7 @@ public:
 		}
 		else
 		{
-			// If the "top" patient's requeset time is the ssame as this time step we move handle it.
+			// If the "top" patient's request time is the same as this time step we move handle it.
 			if (patient->getRequestTime() == time)
 			{
 				AllPatients.dequeue(patient);
@@ -754,10 +754,14 @@ public:
 				// move the ep
 				Patient* p; int severity;
 				Hospitals[i]->RemoveEP(p, severity);
-				Hospitals[j]->AddEP(p, severity);
+				// if patient is not a null pointer
+				if (p)
+				{
+					Hospitals[j - 1]->AddEP(p, severity);
+				}
 
 				// Update the "has unassigned ep" bool of the hospital after moving
-				Hospitals[i]->setHasUnassignedEP(Hospitals[i]->getEPlistEmpty());
+				Hospitals[i]->setHasUnassignedEP(!(Hospitals[i]->getEPlistEmpty()));
 			}
 		}
 	}
