@@ -120,6 +120,7 @@ public:
 	{
 		float ScarSpeed, NcarSpeed;
 		int carfailprob;
+		int SCtime, NCtime;
 		int ScarNum, NcarNum, ReqNum, ReqTime,
 			PID, HID, PatientDistance, CancellationReqNum, CancelTime;
 		string PT;
@@ -145,6 +146,7 @@ public:
 			for (int j = 0; j < NumHospitals; j++)
 				file >> DistanceMatrix[i][j];
 		}
+		file >> SCtime >> NCtime;
 
 		for (int i = 0; i < NumHospitals; i++)
 		{
@@ -153,19 +155,20 @@ public:
 			TotalNumNC += NcarNum;
 			for (int j = 0; j < ScarNum; j++)
 			{
-				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1);
+				Car* C = new Car(j + 1, CarType::SC, ScarSpeed, i + 1, SCtime);
 				Hospitals[i]->AddSCar(C);
 
 			}
 			for (int j = 0; j < NcarNum; j++)
 			{
-				Car* C = new Car(j + 1 + ScarNum, CarType::NC, NcarSpeed, i + 1);
+				Car* C = new Car(j + 1 + ScarNum, CarType::NC, NcarSpeed, i + 1, NCtime);
 				Hospitals[i]->AddNCar(C);
 			}
 			Hospitals[i]->setTotalNumNcars(NcarNum);
 			Hospitals[i]->setTotalNumScars(ScarNum);
 
 		}
+			
 		//set min and max outcars failure probability
 		file >> carfailprob;
 		failprob = carfailprob;
@@ -229,11 +232,12 @@ public:
 	int GetAvgWaitTime() {
 		Patient* p;
 		int totalwaitingtime = 0;
+		int finishedp = GetTotalNumFinished();
 		while (!FinishedPatients.isEmpty()) {
 			FinishedPatients.dequeue(p);
 			totalwaitingtime += p->getWaitingTime();
 		}
-		AvgWaitTime = totalwaitingtime / NumFinishedPatients;
+		AvgWaitTime = totalwaitingtime /finishedp ;
 		return AvgWaitTime;
 	}
 	int GetAvgBusyTime() {
@@ -754,10 +758,15 @@ public:
 				// move the ep
 				Patient* p; int severity;
 				Hospitals[i]->RemoveEP(p, severity);
-				Hospitals[j]->AddEP(p, severity);
+				Hospitals[j - 1]->AddEP(p, severity);
+
+				//if patient is not a null pointer
+				if (p) {
+					Hospitals[j - 1]->AddEP(p, severity);
+				}
 
 				// Update the "has unassigned ep" bool of the hospital after moving
-				Hospitals[i]->setHasUnassignedEP(Hospitals[i]->getEPlistEmpty());
+				Hospitals[i]->setHasUnassignedEP(!(Hospitals[i]->getEPlistEmpty()));
 			}
 		}
 	}
@@ -829,13 +838,13 @@ public:
 			// Reassigned patients will be handled in the next time step. To imitate real life.
 
 			// uncomment later
-			// 
-			//int random_fail = randomExcluding(1, 100, -1);
-			//
-			//int OUTfailprob = getOUTfailprob();
-			//if (random_fail > 0 && random_fail <= OUTfailprob) {
-			//	FailAction();
-			//}
+			 
+			int random_fail = randomExcluding(1, 100, -1);
+			
+			int OUTfailprob = getOUTfailprob();
+			if (random_fail > 0 && random_fail <= OUTfailprob) {
+				FailAction(timestep);
+			}
 
 
 			if (mode == 1) { // if it's in interactive mode print all necessary data from the organizer class
