@@ -15,7 +15,6 @@ public:
 	{
 		// Cin get here so that after entering the mode.. there is a pause.
 
-
 		cout << "Current Timestep: " << timestep << endl;
 
 		for (int i = 0; i < numHospitals; i++) {
@@ -47,8 +46,6 @@ public:
 			cout << NumCheckupCars << "==> Checked Cars:";
 			Checkuplist->printPointers();
 			cout << "Press any key to display next hospital." << endl;
-
-
 		}
 	}
 
