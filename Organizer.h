@@ -11,6 +11,7 @@
 #include<iomanip>
 #include <cmath>
 #include <random>
+#include <iomanip>
 using namespace std;
 
 // Cancellation struct to store patient's id and time of cancellation
@@ -54,8 +55,8 @@ private:
 
 	int TotalNumSC, TotalNumNC;
 
-	int AvgWaitTime;
-	int AvgBusyTime;
+	float AvgWaitTime;
+	float AvgBusyTime;
 	float Utilization;
 	int FailProb;
 
@@ -99,7 +100,7 @@ public:
 		AllCancellations.enqueue(c);
 	}
 
-	// Adds patient to finished lsit
+	// Adds patient to finished list
 	void AddPatientFinishedList(Patient*& p)
 	{
 		FinishedPatients.enqueue(p);
@@ -226,7 +227,7 @@ public:
 		return NumCheckupCars;
 	}
 
-	int GetAvgWaitTime(LinkedQueue<Patient*>& temp) {
+	float GetAvgWaitTime(LinkedQueue<Patient*>& temp) {
 		Patient* p;
 		int totalwaitingtime = 0;
 		int finishedp = GetTotalNumFinished();
@@ -234,16 +235,18 @@ public:
 			temp.dequeue(p);
 			totalwaitingtime += p->getWaitingTime();
 		}
-		AvgWaitTime = totalwaitingtime /finishedp ;
+		AvgWaitTime = (float)totalwaitingtime / (float)finishedp;
 		return AvgWaitTime;
 	}
-	int GetAvgBusyTime() {
+	float GetAvgBusyTime() {
 		Car* c;
 		int pri;
 		int totalbusytime = 0;
+
 		for (int i = 0; i < NumHospitals; i++)
 		{
 			Car* car;
+
 			while (Hospitals[i]->RemoveNCar(car))
 			{
 				totalbusytime += car->getBusyTime();
@@ -252,13 +255,12 @@ public:
 			{
 				totalbusytime += car->getBusyTime();
 			}
-
 		}
-		AvgBusyTime = totalbusytime / NumFinishedPatients;
+		AvgBusyTime = (float)totalbusytime / (float)(TotalNumNC + TotalNumSC);
 		return AvgBusyTime;
 	}
-	int GetAvgUtilization(int timestep) {
-		Utilization = (float)AvgBusyTime / (float)timestep ;
+	float  GetAvgUtilization(int timestep) {
+		Utilization = (float)AvgBusyTime / (float)timestep;
 		return Utilization * 100;
 	}
 
@@ -340,12 +342,12 @@ public:
 			P->setPickupTime(pri * -1);
 
 			// Setting the wait time of patient
-			P->setWaitingTime(P->getPickupTime() - P->getAssignmentTime());
+			P->setWaitingTime(P->getPickupTime() - P->getRequestTime());
 
-			// Setting time patient will arrive to hospital 
+			// Setting time patient will arrive to hospital
 			P->setFinishTime(P->getPickupTime() + ceil(P->getHospitalDistance() / tomove->getSpeed()));
 
-			// += busy time to add time car traveled to patient 
+			// += busy time to add time car traveled to patient
 			tomove->updateBusyTime(P->getPickupTime() - P->getAssignmentTime());
 
 			// Take that out car and move it to back
@@ -359,10 +361,7 @@ public:
 		}
 	}
 
-
-
 	void MoveBackToFree(int Timestep) {
-
 		Car* tomove = nullptr;
 		Patient* P = nullptr;
 		int pri;
@@ -371,7 +370,7 @@ public:
 		while (BackCars.peek(tomove, pri))
 		{
 			// Not time then break
-			if ((pri * -1) != Timestep)
+			if ((pri * -1) > Timestep)
 				break;
 
 			// if car dequeued null then break
@@ -384,7 +383,7 @@ public:
 			{
 				P = tomove->getAssignedPatient();
 
-				// Patient can cancel his request -> no need to handle the patient 
+				// Patient can cancel his request -> no need to handle the patient
 				if (P)
 				{
 					tomove->updateBusyTime(P->getFinishTime() - P->getPickupTime());
@@ -493,7 +492,6 @@ public:
 			int CarID;
 			if (!P)
 			{
-
 				H->GetNpWaitList()->removeItem(P, CancelReq->PID);
 				// if patient didnt exist in waitlist remove the cancel request
 				if (!P)
@@ -525,7 +523,6 @@ public:
 					NumOutCars--;
 					NumBackCars++;
 				}
-
 			}
 		}
 		CancelReq = nullptr;
@@ -641,9 +638,9 @@ public:
 			Output << "Hospitals = " << NumHospitals << endl;
 			Output << "Cars: " << TotalNumNC + TotalNumSC;
 			Output << std::setw(6) << " [SCar: " << TotalNumSC << ", " << "NCar: " << TotalNumNC << "]" << endl;
-			Output << "Avg Wait Time = " << GetAvgWaitTime(temp1) << endl;
-			Output << "Avg Busy Time = " << GetAvgBusyTime() << endl;
-			Output << "Avg Utilization = " << GetAvgUtilization(timestep) << "%" << endl;
+			Output << "Avg Wait Time = " << setprecision(3) << GetAvgWaitTime(temp1) << endl;
+			Output << "Avg Busy Time = " << setprecision(3) << GetAvgBusyTime() << endl;
+			Output << "Avg Utilization = " << setprecision(4) << GetAvgUtilization(timestep) << "%" << endl;
 		}
 		else {
 			cout << "Error opening file!" << endl;
@@ -670,7 +667,7 @@ public:
 			while (Hospitals[i]->getHasUnassignedEP())
 			{
 				// we get the number of the new hospital
-				int j = randomExcluding(1, NumHospitals, i+1);
+				int j = randomExcluding(1, NumHospitals, i + 1);
 
 				// move the ep
 				Patient* p; int severity;
@@ -737,42 +734,40 @@ public:
 				else if (patientType == PatientType::SP) {
 					PatientsHospital->AddSP(CurrentPatient);
 				}
-
 			}
 			// After loop finishes, all relevant patients have been added to their hospitals.
 			// CurrentPatient is now useless
 			CurrentPatient = NULL;
 
-			// All hospitals should now check their requests and handle as much as possible
-			HandleHospitalPatients();
-
 			// The cars should start moving from free to back. (All hospitals , All cars)
 			MoveCheckupToFree(timestep);
 			MoveBackToFree(timestep);
+
+			// All hospitals should now check their requests and handle as much as possible
+			// After cars came back
+			HandleHospitalPatients();
+
 			MoveOutToBack(timestep);
 			MoveFreeToOut(timestep);
 			CancelRequest(timestep);
 
 			ReassignEPs();
 
-
 			// Reassigned patients will be handled in the next time step. To imitate real life.
 
 			// uncomment later
-			// 
-			//int random_fail = randomExcluding(1, 100, -1);
-			//
-			//int OUTfailprob = getOUTfailprob();
-			//if (random_fail > 0 && random_fail <= OUTfailprob) {
-			//	FailAction();
-			//}
 
+			int random_fail = randomExcluding(1, 100, -1);
+
+			int OUTfailprob = getOUTfailprob();
+			if (random_fail > 0 && random_fail <= OUTfailprob) {
+				FailAction(timestep);
+			}
 
 			if (mode == 1) { // if it's in interactive mode print all necessary data from the organizer class
 				//cout << "Random: " << random_fail << endl;
 				InteractiveMode(timestep);
 			}
-
 		} while (GetTotalNumFinished() != (GetTotalNumReq() - GetTotalNumCanellation()) || (!OutCars.isEmpty() || !BackCars.isEmpty()));
 
 		if (mode == 2) {
@@ -780,6 +775,4 @@ public:
 		}
 		OutputFile(timestep);
 	}
-
-	
 };

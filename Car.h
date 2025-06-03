@@ -35,10 +35,10 @@ private:
 
 public:
 	// Constructor
-	Car(int ID, CarType t, float sp, int HID, int checkup=0)
-		: CarID(ID), type(t), speed(sp), status(CarStatus::Ready), assignedPatient(nullptr), HID(HID), checkupTime(checkup), failedCar(false) { busyTime = 0; }
-
-
+	Car(int ID, CarType t, float sp, int HID, int checkup = 0)
+		: CarID(ID), type(t), speed(sp), status(CarStatus::Ready), assignedPatient(nullptr), HID(HID), checkupTime(checkup), failedCar(false) {
+		busyTime = 0;
+	}
 
 	// Setters
 
@@ -48,7 +48,6 @@ public:
 	void setCarFailed(bool b) { failedCar = b; }
 	static void setScarSpeed(int speed) { Sspeed = speed; }
 	static void setNcarSpeed(int speed) { Nspeed = speed; }
-
 
 	// Getters
 	int getHID() const { return HID; }
@@ -82,7 +81,10 @@ public:
 		{
 			car += "S";
 		}
-		output << car << c.getCarID() << "_" << "H" << c.getHID();
+		if (c.assignedPatient != nullptr)
+			output << car << c.getCarID() << "_" << "H" << c.getHID() << "_P" << c.assignedPatient->getPID();
+		else
+			output << car << c.getCarID() << "_" << "H" << c.getHID();
 
 		return output;
 	}

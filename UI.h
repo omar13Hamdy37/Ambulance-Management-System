@@ -14,8 +14,7 @@ public:
 	void PrintOutput(int timestep, Hospital** Hospitals, RemovablePriQueue<Car*>* OutCars, priQueue<Car*>* BackCars, LinkedQueue<Patient*>* FinishedPatients, priQueue<Car*>* Checkuplist, int totalNumFinishedP, int totalNumOutC, int totalNumBackC, int numHospitals, int NumCheckupCars)
 	{
 		// Cin get here so that after entering the mode.. there is a pause.
-
-
+		cin.get();
 		cout << "Current Timestep: " << timestep << endl;
 
 		for (int i = 0; i < numHospitals; i++) {
@@ -47,7 +46,7 @@ public:
 			cout << NumCheckupCars << "==> Checked Cars:";
 			Checkuplist->printPointers();
 			cout << "Press any key to display next hospital." << endl;
-
+			cin.get();
 
 		}
 	}

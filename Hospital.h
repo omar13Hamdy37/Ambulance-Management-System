@@ -138,53 +138,35 @@ public:
 
 		NpWaitList.removeItem(p, pid);
 	}
-	
+
 	// functions to add a patient to the front of a queue
 	void AddToFrontSP(Patient* p) {
 		LinkedQueue<Patient*> temp;
 		Patient* tempP;
-		while (!SPlist.isEmpty()) {
-			SPlist.peek(tempP);
+		while (SPlist.dequeue(tempP)) {
 			temp.enqueue(tempP);
-			SPlist.dequeue(tempP);
 		}
 		SPlist.enqueue(p);
-		while (!temp.isEmpty()) {
-			temp.peek(tempP);
+		NumSPRequests++;
+		while (temp.dequeue(tempP)) {
 			SPlist.enqueue(tempP);
-			temp.dequeue(tempP);
 		}
 	}
 	void AddToFrontNP(Patient* p) {
 		LinkedQueue<Patient*> temp;
 		Patient* tempP;
-		while (!NPlist.isEmpty()) {
-			NPlist.peek(tempP);
+		while (NPlist.dequeue(tempP)) {
 			temp.enqueue(tempP);
-			NPlist.dequeue(tempP);
 		}
 		NPlist.enqueue(p);
-		while (!temp.isEmpty()) {
-			temp.peek(tempP);
+		NumNPRequests++;
+		while (temp.dequeue(tempP)) {
 			NPlist.enqueue(tempP);
-			temp.dequeue(tempP);
 		}
 	}
 	void AddToFrontEP(Patient* p, int severity) {
-		priQueue<Patient*> temp;
-		Patient* tempP;
-		int sev;
-		while (!EPlist.isEmpty()) {
-			EPlist.peek(tempP, sev);
-			temp.enqueue(tempP, sev);
-			EPlist.dequeue(tempP, sev);
-		}
-		EPlist.enqueue(p, severity);
-		while (!temp.isEmpty()) {
-			temp.peek(tempP, sev);
-			EPlist.enqueue(tempP, sev);
-			temp.dequeue(tempP, sev);
-		}
+		EPlist.enqueue(p, 1000);
+		NumEPRequests++;
 	}
 	// Setters
 	void setTotalNumScars(int totalScars) {
@@ -295,7 +277,6 @@ public:
 		AssignedCars.dequeue(C);
 		return true;
 	}
-
 
 	// A function that handles all current requests for the hospital
 	void HandlePatients()
